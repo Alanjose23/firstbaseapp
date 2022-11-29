@@ -11,6 +11,9 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
+  zipcode: {
+    type: Number
+  }
 });
 
 const User = model('User', userSchema);
