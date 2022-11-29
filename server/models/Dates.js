@@ -1,16 +1,17 @@
 const { Schema, model } = require('mongoose');
 
 const dateSchema = new Schema({
-id:[
-        {type: Schema.Types.ObjectId, ref: 'User'} ],
+id:[{
+type: Schema.Types.ObjectId, ref: 'User'
+} ],
 locations: {
 type: String
 },
 Exp: {
-type: Text,
+type: String,
 }
 });
 
-const Dates = model('Dates', dateSchema);
+const Date = model('Date', dateSchema);
 
-module.exports = Dates;
+module.exports = Date;
