@@ -12,7 +12,7 @@ const userSchema = new Schema({
     unique: true,
   },
   zipcode: {
-    type: Number
+    type: String,
   }
 });
 

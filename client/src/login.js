@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 
+import "./login.css";
 
-import "./styles.css";
-
-function login() {
+function Login() {
 
   const [errorMessages, setErrorMessages] = useState('Incorrect Username or Password.');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -49,7 +48,7 @@ function login() {
     }
   };
 
-  // Generate JSX code for error message
+
   const renderErrorMessage = (name) =>
     name === errorMessages.name && (
       <div className="error">{errorMessages.message}</div>
