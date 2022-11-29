@@ -1,58 +1,42 @@
 [
   {
-    "name": "Brian Kernighan",
-    "skills": ["AWK", "AMPL", "Unix"]
+    "username": "BrianK",
+    "password": "11111111",
+    "zipcode": 32132
   },
   {
-    "name": "Max Kanat-Alexander",
-    "skills": ["Java", "Perl", "Apache", "Python"]
+    "username": "BrianP",
+    "password": "11111112",
+    "zipcode": 32112
   },
   {
-    "name": "Amiko",
-    "skills": ["NodeJS", "MySQL", "MongoDB", "React", "CSS-in-JS"]
+    "username": "Brianilike",
+    "password": "44444444",
+    "zipcode": 32454
   },
   {
-    "name": "Kent Beck",
-    "skills": [
-      "Test-Driven Development",
-      "Extreme Programming",
-      "Software Design Patterns",
-      "JUnit"
-    ]
+    "username": "Brian864",
+    "password": "11222222",
+    "zipcode": 32132
   },
   {
-    "name": "Edward V. Berard",
-    "skills": ["Object-Oriented Design"]
+    "username": "Brian45fe",
+    "password": "444444444",
+    "zipcode": 32132
   },
   {
-    "name": "Alan Kay",
-    "skills": [
-      "Graphical User Interface (GUI) Design",
-      "Jazz Guitar",
-      "Education"
-    ]
+    "username": "BrianKapler",
+    "password": "23232322d",
+    "zipcode": 34123
   },
   {
-    "name": "C.A.R. Hoare",
-    "skills": ["Algorithms", "Quicksort", "Hoare Logic"]
+    "username": "BrianKdfd",
+    "password": "333333333",
+    "zipcode": 31111
   },
   {
-    "name": "David Thomas",
-    "skills": ["Author", "Code Kata", "Ruby", "Pragmatic Programming"]
-  },
-  {
-    "name": "Donald Knuth",
-    "skills": ["TeX Computer Typesetting", "Algorithms", "Author"]
-  },
-  {
-    "name": "Lernantino",
-    "skills": [
-      "JavaScript",
-      "CSS",
-      "HTML",
-      "Design Systems",
-      "Typescript",
-      "PWAs"
-    ]
+    "username": "BrianKepler",
+    "password": "2222232",
+    "zipcode": 12321
   }
 ]
