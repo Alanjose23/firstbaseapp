@@ -10,7 +10,7 @@ const resolvers = {
       return User.findOne({ _id: userId });
     },
     dates: async(userId) =>{
-      return Dates.find({ id: userId });
+      return Dates.findOne({ id: userId });
     },
   },
 
@@ -22,7 +22,7 @@ const resolvers = {
       return User.findOneAndDelete({ _id: userId });
     },
     addDate: async (parent, { userId, locations, Exp }) => {
-      return Date.create({ userId, locations, Exp });
+      return Date.insert({ id: userId, locations, Exp });
     },
   },
 };
