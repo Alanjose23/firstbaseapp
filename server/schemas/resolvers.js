@@ -9,7 +9,7 @@ const resolvers = {
       return await User.findOne({ _id: userId });
     },
     Dates: async(parent, {userId}) =>{
-      return await Dates.find({ id: userId });
+      return await Date.find({ id: userId });
     },
   },
 
@@ -21,10 +21,10 @@ const resolvers = {
       return await User.findOneAndDelete({ _id: userId });
     },
     addDateLocations: async (parent, { userId, locations}) => {
-      return await Dates.insertOne({ id: userId, locations: locations});
+      return await Date.insertOne({ id: userId, locations: locations});
     },
     addDateExp: async (parent, { userId, Exp}) => {
-      return await Dates.insertOne({ id: userId, Exp: Exp});
+      return await Date.insertOne({ id: userId, Exp: Exp});
     },
   },
 };
