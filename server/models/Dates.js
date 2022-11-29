@@ -7,7 +7,7 @@ locations: {
 type: String
 },
 Exp: {
-type: Text,
+type: String,
 }
 });
 
