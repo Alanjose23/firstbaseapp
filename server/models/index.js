@@ -1,4 +1,4 @@
 const User = require('./User');
-const Dates = require('./Dates');
+const Date = require('./Dates');
 
-module.exports = { User, Dates };
+module.exports = { User, Date };

@@ -5,20 +5,25 @@ const typeDefs = gql`
     _id: ID
     username: String
     password: String
-    zipcode: Number
+    zipcode: String
+  }
+  type Date {
+    id: ID
+    locations: String
+    Exp: String
   }
 
   type Query {
     Users: [User]!
     User(userId: ID!): User
-    Dates(userId: ID!): [Dates]!
+    Dates(userId: ID!): [Date]!
   }
 
   type Mutation {
-    addUser(username: String!, password: String!, zipcode: Number!): User
+    addUser(username: String!, password: String!, zipcode: String!): User
     removeUser(userId: ID!): User
-    addDateLocations(id: ID!, locations: String!): Dates
-    addDateExp(id: ID!, Exp: Text!): Dates
+    addDateLocations(id: ID!, locations: String!): Date
+    addDateExp(id: ID!, Exp: String!): Date
   }
 `;
 
