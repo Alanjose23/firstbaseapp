@@ -6,17 +6,16 @@ const typeDefs = gql`
     username: String
     password: String
     zipcode: String
-  }
-  type Date {
-    id: ID
-    locations: String
-    Exp: String
+    Date: [
+      locations: String
+      Exp: String
+    ]
   }
 
   type Query {
     Users: [User]!
     User(userId: ID!): User
-    Dates(userId: ID!): [Date]!
+    Dates(userId: ID!): [User]!
   }
 
   type Mutation {

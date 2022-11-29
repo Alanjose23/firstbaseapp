@@ -2,7 +2,11 @@
   {
     "username": "BrianK",
     "password": "11111111",
-    "zipcode": 32132
+    "zipcode": 32132,
+    "Date": {
+      "locations": "I am loving this spot",
+      "Exp": "experiencing great things at this spot"
+    }
   },
   {
     "username": "BrianP",

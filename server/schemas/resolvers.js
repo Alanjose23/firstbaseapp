@@ -1,4 +1,4 @@
-const { User, Date } = require('../models');
+const { User } = require('../models');
 
 const resolvers = {
   Query: {
@@ -9,7 +9,7 @@ const resolvers = {
       return await User.findOne({ _id: userId });
     },
     Dates: async(parent, {userId}) =>{
-      return await Date.find({ id: userId });
+      return await User.find({ id: userId }).populate({locations, Exp});
     },
   },
 
@@ -20,12 +20,12 @@ const resolvers = {
     removeUser: async (parent, { userId }) => {
       return await User.findOneAndDelete({ _id: userId });
     },
-    addDateLocations: async (parent, { userId, locations}) => {
-      return await Date.insertOne({ id: userId, locations: locations});
-    },
-    addDateExp: async (parent, { userId, Exp}) => {
-      return await Date.insertOne({ id: userId, Exp: Exp});
-    },
+    // addDateLocations: async (parent, { userId, locations}) => {
+    //   return await Date.insertOne({ id: userId, locations: locations});
+    // },
+    // addDateExp: async (parent, { userId, Exp}) => {
+    //   return await Date.insertOne({ id: userId, Exp: Exp});
+    // },
   },
 };
 
