@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 
+
 import "./styles.css";
 
-function App() {
+function login() {
 
-  const [errorMessages, setErrorMessages] = useState({});
+  const [errorMessages, setErrorMessages] = useState('Incorrect Username or Password.');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // User Login info
@@ -26,7 +27,7 @@ function App() {
   };
 
   const handleSubmit = (event) => {
-    //Prevent page reload
+    
     event.preventDefault();
 
     var { uname, pass } = document.forms[0];
@@ -84,4 +85,4 @@ function App() {
   );
 }
 
-export default App;
+export default login;
