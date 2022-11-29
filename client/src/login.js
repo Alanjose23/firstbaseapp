@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 
-import "./styles.css";
+import "./login.css";
 
-function App() {
+function Login() {
 
   const [errorMessages, setErrorMessages] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -48,7 +48,7 @@ function App() {
     }
   };
 
-  // Generate JSX code for error message
+
   const renderErrorMessage = (name) =>
     name === errorMessages.name && (
       <div className="error">{errorMessages.message}</div>
