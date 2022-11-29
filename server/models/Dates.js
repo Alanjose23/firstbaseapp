@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose');
 
 const dateSchema = new Schema({
 id:[{
-        type: Schema.Types.ObjectId, ref: 'User'
+type: Schema.Types.ObjectId, ref: 'User'
 } ],
 locations: {
 type: String
