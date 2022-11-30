@@ -39,8 +39,8 @@ const resolvers = {
     removeUser: async (parent, { userId }) => {
       return await User.findOneAndDelete({ _id: userId });
     },
-    addDate: async (parent, {user, future, journal} ) => {
-      return await Date.create({user, future, journal});
+    addDate: async (parent, {userId, future, journal} ) => {
+      return await Date.create({userId, future, journal});
     },  
   },
 };
