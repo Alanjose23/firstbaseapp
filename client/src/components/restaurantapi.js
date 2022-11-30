@@ -4,8 +4,14 @@ import axios from 'axios';
 function getRests(lat,lon) {
     axios.get(`https://api.tomtom.com/search/2/categorySearch/restaurants.json?key=XJTrt6uiszGL5kycM0FZLHZF6rbXEyQ2&lat=${lat}&lon=${lon}`)
     .then(data => {
-        console.log(data)
-    })
+        return data.data.results})
+        .then(data => {    
+           data.forEach(element => {
+               console.log(element.poi.name)
+               console.log(element.poi.categories[0])
+           });
+       
+       })
     
 }
 
@@ -23,6 +29,4 @@ getRests(lat,lon)
 
 }
 
-export default function Restlist(zip) {
-getzip(zip)
-}
+export default getzip
