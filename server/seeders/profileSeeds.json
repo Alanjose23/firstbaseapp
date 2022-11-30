@@ -2,11 +2,8 @@
   {
     "username": "BrianK",
     "password": "11111111",
-    "zipcode": 32132,
-    "Date": {
-      "locations": "I am loving this spot",
-      "Exp": "experiencing great things at this spot"
-    }
+    "zipcode": 32132
+
   },
   {
     "username": "BrianP",
@@ -17,31 +14,37 @@
     "username": "Brianilike",
     "password": "44444444",
     "zipcode": 32454
+ 
   },
   {
     "username": "Brian864",
     "password": "11222222",
     "zipcode": 32132
+
   },
   {
     "username": "Brian45fe",
     "password": "444444444",
     "zipcode": 32132
+
   },
   {
     "username": "BrianKapler",
     "password": "23232322d",
     "zipcode": 34123
+
   },
   {
     "username": "BrianKdfd",
     "password": "333333333",
     "zipcode": 31111
+
   },
   {
     "username": "BrianKepler",
     "password": "2222232",
     "zipcode": 12321
+
   }
 ]
 

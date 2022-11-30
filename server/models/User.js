@@ -1,15 +1,6 @@
 const { Schema, model } = require('mongoose');
 
 
-const dateSchema = new Schema({
-  locations: {
-  type: String
-  },
-  Exp: {
-  type: String,
-  }
-  });
-
 const userSchema = new Schema({
   username: {
     type: String,
@@ -24,7 +15,9 @@ const userSchema = new Schema({
   zipcode: {
     type: String,
   },
-  Date: [dateSchema]
+  date:[{
+    type: Schema.Types.ObjectId, ref: 'Date'
+    } ]
 });
 
 const User = model('User', userSchema);
