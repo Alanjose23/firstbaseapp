@@ -20,6 +20,9 @@ const typeDefs = gql`
     Users: [User]!
     User(userId: ID!): User
     UserDate(userId: ID!): User
+    GetDate(id: ID!): Date
+    GetJournal(userId: ID!): User
+    GetFuture(userId: ID!): User
   }
 
   type Mutation {
