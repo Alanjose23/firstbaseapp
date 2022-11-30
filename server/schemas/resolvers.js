@@ -9,7 +9,26 @@ const resolvers = {
       return await User.findOne({ _id: userId });
     },
     UserDate: async (parent, {userId}) => {
-      return await User.findOne({id: userId}).populate("date");
+      return await User.findOne({_id: userId}).populate("date");
+    },
+    GetDate: async (parent, {id}) => {
+      return await Date.findOne({id: id})
+    },
+    GetJournal: async (parent, {userId}) => {
+      return await User.findOne({_id: userId}).populate({
+        path : 'date',
+        populate : {
+          path : 'journal'
+        }
+      })
+    },
+    GetFuture: async (parent, {userId}) => {
+      return await User.findOne({_id: userId}).populate({
+        path : 'date',
+        populate : {
+          path : 'future'
+        }
+      })
     }
   },
 
