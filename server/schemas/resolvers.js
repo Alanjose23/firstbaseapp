@@ -8,9 +8,9 @@ const resolvers = {
     User: async (parent, { userId }) => {
       return await User.findOne({ _id: userId });
     },
-    Dates: async(parent, {userId}) =>{
-      return await Date.find({ id: userId });
-    },
+    UserDate: async (parent, {userId}) => {
+      return await User.findOne({id: userId}).populate("date");
+    }
   },
 
   Mutation: {
@@ -20,12 +20,9 @@ const resolvers = {
     removeUser: async (parent, { userId }) => {
       return await User.findOneAndDelete({ _id: userId });
     },
-    addDateLocations: async (parent, { userId, locations}) => {
-      return await Date.insertOne({ id: userId, locations: locations});
-    },
-    addDateExp: async (parent, { userId, Exp}) => {
-      return await Date.insertOne({ id: userId, Exp: Exp});
-    },
+    addDate: async (parent, {user, future, journal} ) => {
+      return await Date.create({user, future, journal});
+    },  
   },
 };
 

@@ -1,13 +1,13 @@
 const { Schema, model } = require('mongoose');
 
 const dateSchema = new Schema({
-id:[{
+user:[{
 type: Schema.Types.ObjectId, ref: 'User'
-} ],
-locations: {
+}],
+future: {
 type: String
 },
-Exp: {
+journal: {
 type: String,
 }
 });
