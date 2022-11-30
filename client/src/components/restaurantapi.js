@@ -29,6 +29,4 @@ getRests(lat,lon)
 
 }
 
-export default function Restlist(zip) {
-getzip(zip)
-}
+export default getzip
