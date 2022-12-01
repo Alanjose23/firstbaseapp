@@ -1,12 +1,13 @@
 const { Schema, model } = require('mongoose');
 
-const dateSchema = new Schema(
-{
-  user_id:[{
-type: Schema.Types.ObjectId, ref: 'User' //multiple users_id to one date
+const dateSchema = new Schema({
+user_id:[{
+type: Schema.Types.ObjectId, ref: 'User'//multiple users_id to one date
 }],
-
-locations: {
+future: {
+type: String
+},
+journal: {
 type: String,
 required: true
 },

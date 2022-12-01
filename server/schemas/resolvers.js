@@ -8,9 +8,28 @@ const resolvers = {
     User: async (parent, { userId }) => {
       return await User.findOne({ _id: userId });
     },
-    Dates: async(parent, {userId}) =>{
-      return await Date.find({ id: userId });
+    UserDate: async (parent, {userId}) => {
+      return await User.findOne({_id: userId}).populate("date");
     },
+    GetDate: async (parent, {id}) => {
+      return await Date.findOne({id: id})
+    },
+    GetJournal: async (parent, {userId}) => {
+      return await User.findOne({_id: userId}).populate({
+        path : 'date',
+        populate : {
+          path : 'journal'
+        }
+      })
+    },
+    GetFuture: async (parent, {userId}) => {
+      return await User.findOne({_id: userId}).populate({
+        path : 'date',
+        populate : {
+          path : 'future'
+        }
+      })
+    }
   },
 
   Mutation: {
@@ -20,12 +39,9 @@ const resolvers = {
     removeUser: async (parent, { userId }) => {
       return await User.findOneAndDelete({ _id: userId });
     },
-    addDateLocations: async (parent, { userId, locations}) => {
-      return await Date.insertOne({ id: userId, locations: locations});
-    },
-    addDateExp: async (parent, { userId, Exp}) => {
-      return await Date.insertOne({ id: userId, Exp: Exp});
-    },
+    addDate: async (parent, {userId, future, journal} ) => {
+      return await Date.create({userId, future, journal});
+    },  
   },
 };
 

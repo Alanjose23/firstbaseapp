@@ -6,25 +6,32 @@ const typeDefs = gql`
     username: String
     password: String
     zipcode: String
+    date: ID
   }
+
   type Date {
-    id: ID
-    locations: String
-    Exp: String
+    _id: ID
+    user: ID
+    future: String
+    journal: String
   }
 
   type Query {
     Users: [User]!
     User(userId: ID!): User
-    Dates(userId: ID!): [Date]!
+    UserDate(userId: ID!): User
+    GetDate(id: ID!): Date
+    GetJournal(userId: ID!): User
+    GetFuture(userId: ID!): User
   }
 
   type Mutation {
     addUser(username: String!, password: String!, zipcode: String!): User
     removeUser(userId: ID!): User
-    addDateLocations(id: ID!, locations: String!): Date
-    addDateExp(id: ID!, Exp: String!): Date
+    addDate(userId: ID!, future: String!, journal: String!): Date
+
   }
-`;
+`
+
 
 module.exports = typeDefs;
