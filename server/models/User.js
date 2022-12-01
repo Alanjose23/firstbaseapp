@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const Date = require("./Dates")
+const Date = require("./Dates").schema;
 
 const userSchema = new Schema({
   username: {
