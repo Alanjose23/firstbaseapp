@@ -1,4 +1,5 @@
+const Event = require('./Event');
+const Date = require('./Date');
 const User = require('./User');
-const Date = require('./Dates');
 
-module.exports = { User, Date };
+module.exports = { User, Event, Date };

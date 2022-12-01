@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 
+
 const userSchema = new Schema({
   username: {
     type: String,
@@ -9,11 +10,15 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    unique: true,
+    required: true,
+    minlength: 6,
   },
-  zipcode: {
+  email: {
     type: String,
-  }
+    required: true,
+    unique: true,
+    match: [/.+@.+\..+/, 'E-mail address does not match any of our users!'],
+  },
 });
 
 const User = model('User', userSchema);
