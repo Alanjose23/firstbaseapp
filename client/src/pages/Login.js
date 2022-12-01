@@ -9,8 +9,8 @@ const Login = (props) => {
   const [formState, setFormState] = useState({ email: '', password: '' });
   const [login, { error, data }] = useMutation(LOGIN_USER);
 
-  // update state based on form input changes
-  const handleChange = (event) => {
+ 
+  const handleChange = (event) => { // update state based on form input changes
     const { name, value } = event.target;
 
     setFormState({
@@ -19,22 +19,22 @@ const Login = (props) => {
     });
   };
 
-  // submit form
-  const handleFormSubmit = async (event) => {
+ 
+  const handleFormSubmit = async (event) => { // submit form
     event.preventDefault();
-    console.log(formState);
+    // console.log(formState);
     try {
       const { data } = await login({
         variables: { ...formState },
       });
 
-      Auth.login(data.login.token);
+      // Auth.login(data.login.token);
     } catch (e) {
       console.error(e);
     }
 
-    // clear form values
-    setFormState({
+   
+    setFormState({ // clears form after submitted
       email: '',
       password: '',
     });
@@ -48,8 +48,8 @@ const Login = (props) => {
           <div className="card-body">
             {data ? (
               <p>
-                Success! You may now head{' '}
-                <Link to="/">back to the homepage.</Link>
+                Login achieved. Now head{' '}
+                <Link to="/"> back to the homepage.</Link>
               </p>
             ) : (
               <form onSubmit={handleFormSubmit}>
@@ -63,7 +63,7 @@ const Login = (props) => {
                 />
                 <input
                   className="form-input"
-                  placeholder="******"
+                  placeholder="Enter you password"
                   name="password"
                   type="password"
                   value={formState.password}
