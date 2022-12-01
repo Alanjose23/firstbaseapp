@@ -27,7 +27,7 @@ const SkillForm = ({ profileId }) => {
 
   return (
     <div>
-      <h4>Endorse some more skills below.</h4>
+      <h4>Endorse some more Dates below.</h4>
 
       {Auth.loggedIn() ? (
         <form
