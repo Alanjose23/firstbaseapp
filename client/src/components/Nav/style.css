@@ -1,0 +1,15 @@
+ul {
+    background-color: #8A3033;
+    padding-left:0px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+li{
+    display:inline;
+    padding: 10px 20px;
+    color: #EADEDA;
+    border-radius: 3px;
+    border:solid
+    
+}

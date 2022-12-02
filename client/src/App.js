@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router,Routes, Route, Link } from 'react-router-dom';
 import Nav from "./components/Nav"
-import User from './pages/UserandDate';
+import FindUser from './pages/UserandDate';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Home from "./pages/Home"
@@ -29,7 +29,7 @@ function App () {
               />
               <Route 
                 path="/user" 
-                element={<User />} 
+                element={<FindUser />} 
               />
             </Routes>
         <Contact/>

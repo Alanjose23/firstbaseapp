@@ -1,6 +1,6 @@
 import React from 'react';
 // import { useQuery } from '@apollo/client';
-
+import "../styling/Home.css"
 
 
 import { QUERY_USERS } from '../utils/queries';
