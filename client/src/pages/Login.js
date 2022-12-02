@@ -43,6 +43,7 @@ const Login = () => {
 // console.log("test");
   return (
     <main className="flex-row justify-center mb-4">
+      <center>
       <div className="col-12 col-lg-10">
         <div className="card">
           <h4 className="card-header bg-dark text-light p-2">Login</h4>
@@ -78,10 +79,11 @@ const Login = () => {
               <div className="my-3 p-3 bg-danger text-white">
                 
               </div>
-          
+          <div><h5>“To love is to burn, to be on fire.” – Jane Austen</h5></div>
           </div>
         </div>
       </div>
+      </center>
     </main>
     
   );

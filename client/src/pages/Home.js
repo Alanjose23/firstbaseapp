@@ -25,7 +25,11 @@ const Home = () => {
   //     </div>
   //   </main>
   // );
-  return <div>Home</div>
+  return (<div>
+  <center><h1><i>FIRST BASE</i></h1>
+  <img src = "https://img.freepik.com/premium-vector/couple-hands-with-love-heart-shape-marry-marriage-affection-wedding-valentine-romantic-logo_358185-399.jpg?w=2000" alt = "projectlogo"></img>
+  </center>
+  </div>)
 };
 
 export default Home;

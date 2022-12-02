@@ -28,6 +28,7 @@ const DateForm = ({ profileId }) => {
 
   return (
     <div>
+      <center>
       <h4>Endorse some Favorite Dates</h4>
         <form
           className="flex-row justify-center justify-space-between-md align-center"
@@ -43,7 +44,7 @@ const DateForm = ({ profileId }) => {
 
           <div className="col-12 col-lg-3">
             <button className="btn btn-info btn-block py-3" type="submit">
-              Endorse Dates
+              Endorse into Favorite
             </button>
           </div>
         
@@ -63,11 +64,12 @@ const DateForm = ({ profileId }) => {
 
           <div className="col-12 col-lg-3">
             <button className="btn btn-info btn-block py-3" type="submit">
-              Endorse Skill
+              Endorse into Journal
             </button>
           </div>
         
         </form>
+        </center>
     </div>
     
   );
