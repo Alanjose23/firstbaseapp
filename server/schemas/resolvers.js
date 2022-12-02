@@ -33,8 +33,8 @@ const resolvers = {
   },
 
   Mutation: {
-    addUser: async (parent, { username, password, zipcode }) => {
-      return await User.create({ username, password, zipcode });
+    addUser: async (parent, { username, password, email }) => {
+      return await User.create({ username, password, email });
     },
     removeUser: async (parent, { userId }) => {
       return await User.findOneAndDelete({ _id: userId });
