@@ -16,7 +16,11 @@ This application was made to assist couples with narrowing down their decisions 
 ## Usage
 
 
-![screenshot](assets/images/screenshot.png)
+![HomePage](client\public\assets\homepage.png)
+![login](client\public\assets\login.png)
+![HomePage](client\public\assets\signup.png)
+
+![HomePage](client\public\assets\user.png)
 
 ## Credits
 
@@ -34,5 +38,5 @@ N/A
 
 ## Features
 
-[Our First Base App]()
+[Our First Base App](https://alanjose23.github.io/firstbaseapp/)
 
