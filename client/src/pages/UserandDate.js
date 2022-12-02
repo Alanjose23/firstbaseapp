@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 
-import { ADD_SKILL } from '../../utils/mutations';
+import { ADD_SKILL } from '../utils/mutations';
 
-import Auth from '../../utils/auth';
+import Auth from '../utils/auth';
 
 const SkillForm = ({ profileId }) => {
   const [skill, setSkill] = useState('');
@@ -27,7 +27,7 @@ const SkillForm = ({ profileId }) => {
 
   return (
     <div>
-      <h4>Endorse some more skills below.</h4>
+      <h4>Endorse some more Dates below.</h4>
 
       {Auth.loggedIn() ? (
         <form

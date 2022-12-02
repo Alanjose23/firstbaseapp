@@ -11,7 +11,7 @@ const typeDefs = gql`
 
   type Date {
     _id: ID
-    user: ID
+    user_id: ID
     future: String
     journal: String
   }
