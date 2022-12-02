@@ -2,7 +2,7 @@
 
 ## Description
 
-The motivation behind this application was to help couples choose a location for a nice romantic dinner date or a more eventful outing with an event 
+This application was made to assist couples with narrowing down their decisions for a nice date night. Couples will be able to choose from various top-rated resturantes in the area. 
 
 
 ## Table of Contents (Optional)
