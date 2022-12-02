@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/firstbaseapp/static/css/main.447ced3d.chunk.css",
+    "main.js": "/firstbaseapp/static/js/main.11cb5158.chunk.js",
+    "main.js.map": "/firstbaseapp/static/js/main.11cb5158.chunk.js.map",
+    "runtime-main.js": "/firstbaseapp/static/js/runtime-main.9b9ae95d.js",
+    "runtime-main.js.map": "/firstbaseapp/static/js/runtime-main.9b9ae95d.js.map",
+    "static/js/2.452ff239.chunk.js": "/firstbaseapp/static/js/2.452ff239.chunk.js",
+    "static/js/2.452ff239.chunk.js.map": "/firstbaseapp/static/js/2.452ff239.chunk.js.map",
+    "index.html": "/firstbaseapp/index.html",
+    "static/css/main.447ced3d.chunk.css.map": "/firstbaseapp/static/css/main.447ced3d.chunk.css.map",
+    "static/js/2.452ff239.chunk.js.LICENSE.txt": "/firstbaseapp/static/js/2.452ff239.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.9b9ae95d.js",
+    "static/js/2.452ff239.chunk.js",
+    "static/css/main.447ced3d.chunk.css",
+    "static/js/main.11cb5158.chunk.js"
+  ]
+}
