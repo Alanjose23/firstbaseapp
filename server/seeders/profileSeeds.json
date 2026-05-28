@@ -1,50 +1,112 @@
 [
   {
-    "username": "BrianK",
-    "password": "11111111",
-    "zipcode": 32132
-
+    "email": "alex.morgan@firstbase.app",
+    "password": "password123",
+    "name": "Alex Morgan",
+    "age": 28,
+    "ageRangeMin": 24,
+    "ageRangeMax": 35,
+    "bio": "Aspiring chef who spends weekends hiking trails and hunting down hidden gems of restaurants. Looking for someone curious, kind, and hungry.",
+    "interests": ["Cooking", "Hiking", "Photography", "Travel"],
+    "favoriteShows": ["The Bear", "Chef's Table", "Parks and Recreation"]
   },
   {
-    "username": "BrianP",
-    "password": "11111112",
-    "zipcode": 32112
+    "email": "jamie.lee@firstbase.app",
+    "password": "password123",
+    "name": "Jamie Lee",
+    "age": 26,
+    "ageRangeMin": 22,
+    "ageRangeMax": 33,
+    "bio": "Graphic designer by day, jazz drummer by night. I'll probably drag you to a coffee shop you've never heard of — you'll thank me later.",
+    "interests": ["Jazz", "Design", "Coffee", "Vinyl Records"],
+    "favoriteShows": ["Succession", "Atlanta", "What We Do in the Shadows"]
   },
   {
-    "username": "Brianilike",
-    "password": "44444444",
-    "zipcode": 32454
- 
+    "email": "sam.rivera@firstbase.app",
+    "password": "password123",
+    "name": "Sam Rivera",
+    "age": 31,
+    "ageRangeMin": 26,
+    "ageRangeMax": 38,
+    "bio": "Marathon runner and amateur sommelier. I believe in long dinners, longer hikes, and never skipping dessert.",
+    "interests": ["Running", "Wine", "Travel", "Cooking"],
+    "favoriteShows": ["Severance", "The White Lotus", "Fleabag"]
   },
   {
-    "username": "Brian864",
-    "password": "11222222",
-    "zipcode": 32132
-
+    "email": "casey.kim@firstbase.app",
+    "password": "password123",
+    "name": "Casey Kim",
+    "age": 24,
+    "ageRangeMin": 21,
+    "ageRangeMax": 30,
+    "bio": "Just moved to the city and on a mission to find the best tacos. Send me your recs — or better yet, show me in person.",
+    "interests": ["Street Food", "Cycling", "Indie Music", "Skateboarding"],
+    "favoriteShows": ["Beef", "The Last of Us", "Ted Lasso"]
   },
   {
-    "username": "Brian45fe",
-    "password": "444444444",
-    "zipcode": 32132
-
+    "email": "morgan.blake@firstbase.app",
+    "password": "password123",
+    "name": "Morgan Blake",
+    "age": 33,
+    "ageRangeMin": 28,
+    "ageRangeMax": 42,
+    "bio": "Architect with a pottery hobby and a Sunday farmer's market ritual. I read on the weekends and overthink on weekdays.",
+    "interests": ["Architecture", "Books", "Pottery", "Yoga"],
+    "favoriteShows": ["The Crown", "Mindhunter", "Documentary Now!"]
   },
   {
-    "username": "BrianKapler",
-    "password": "23232322d",
-    "zipcode": 34123
-
+    "email": "jordan.hayes@firstbase.app",
+    "password": "password123",
+    "name": "Jordan Hayes",
+    "age": 27,
+    "ageRangeMin": 23,
+    "ageRangeMax": 34,
+    "bio": "High school history teacher, salsa dancer, and terrible but wildly enthusiastic golfer. Karaoke should be an Olympic sport.",
+    "interests": ["Salsa Dancing", "Golf", "Karaoke", "History"],
+    "favoriteShows": ["Abbott Elementary", "Taskmaster", "Breaking Bad"]
   },
   {
-    "username": "BrianKdfd",
-    "password": "333333333",
-    "zipcode": 31111
-
+    "email": "taylor.wu@firstbase.app",
+    "password": "password123",
+    "name": "Taylor Wu",
+    "age": 29,
+    "ageRangeMin": 25,
+    "ageRangeMax": 36,
+    "bio": "Startup founder who unwinds with rock climbing and sourdough experiments. Looking for someone who can keep up and slow me down.",
+    "interests": ["Rock Climbing", "Baking", "Tech", "Meditation"],
+    "favoriteShows": ["Silicon Valley", "Halt and Catch Fire", "Nathan for You"]
   },
   {
-    "username": "BrianKepler",
-    "password": "2222232",
-    "zipcode": 12321
-
+    "email": "river.jones@firstbase.app",
+    "password": "password123",
+    "name": "River Jones",
+    "age": 25,
+    "ageRangeMin": 21,
+    "ageRangeMax": 32,
+    "bio": "Marine biologist who basically lives in the ocean on weekends. Expert at finding dive spots and convincing people to eat weird seafood.",
+    "interests": ["Scuba Diving", "Marine Life", "Yoga", "Photography"],
+    "favoriteShows": ["Our Planet", "Dark", "Broad City"]
+  },
+  {
+    "email": "dana.cross@firstbase.app",
+    "password": "password123",
+    "name": "Dana Cross",
+    "age": 30,
+    "ageRangeMin": 25,
+    "ageRangeMax": 38,
+    "bio": "Stand-up comedian and part-time mixologist. I will absolutely challenge you to a trivia night and I will absolutely win.",
+    "interests": ["Comedy", "Cocktails", "Trivia", "Improv"],
+    "favoriteShows": ["The Marvelous Mrs. Maisel", "I Think You Should Leave", "Cheers"]
+  },
+  {
+    "email": "eli.park@firstbase.app",
+    "password": "password123",
+    "name": "Eli Park",
+    "age": 32,
+    "ageRangeMin": 27,
+    "ageRangeMax": 40,
+    "bio": "Landscape photographer and weekend climber. I know every rooftop bar in the city and somehow still prefer a quiet night in.",
+    "interests": ["Photography", "Rock Climbing", "Rooftops", "Jazz"],
+    "favoriteShows": ["The Bear", "Succession", "Planet Earth"]
   }
 ]
-

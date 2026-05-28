@@ -1,24 +1,23 @@
 import { gql } from '@apollo/client';
 
-export const QUERY_USERS = gql`
-query Users {
-  Users {
-    _id
-    username
-    email
-    password
-    date
-  }
-}
+const USER_FIELDS = `
+  _id email name age ageRangeMin ageRangeMax bio interests favoriteShows
 `;
 
-export const QUERY_SINGLE_USER = gql`
-query User($userId: ID!) {
-  User(userId: $userId) {
-    date
-    email
-    username
-    password
+export const QUERY_ME = gql`
+  query Me {
+    me {
+      ${USER_FIELDS}
+      connections     { ${USER_FIELDS} }
+      pendingRequests { ${USER_FIELDS} }
+    }
   }
-}
+`;
+
+export const QUERY_DISCOVER = gql`
+  query DiscoverUsers {
+    discoverUsers {
+      ${USER_FIELDS}
+    }
+  }
 `;

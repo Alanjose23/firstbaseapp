@@ -1,12 +1,13 @@
 const { Schema, model } = require('mongoose');
-const Date = require("./Dates").schema;
-
+const bcrypt = require('bcryptjs');
 
 const userSchema = new Schema({
-  username: {
+  email: {
     type: String,
     required: true,
     unique: true,
+    match: [/.+@.+\..+/, 'Must use a valid email address'],
+    lowercase: true,
     trim: true,
   },
   password: {
@@ -14,14 +15,40 @@ const userSchema = new Schema({
     required: true,
     minlength: 6,
   },
-  email: {
+  name: {
     type: String,
-    required: true,
-    unique: true,
-    match: [/.+@.+\..+/, 'E-mail address does not match any of our users!'],
+    default: '',
+    trim: true,
   },
+  age: {
+    type: Number,
+    min: 18,
+    max: 100,
+  },
+  ageRangeMin: { type: Number, default: 18 },
+  ageRangeMax: { type: Number, default: 99 },
+  bio: {
+    type: String,
+    default: '',
+    maxlength: 300,
+  },
+  interests:     [{ type: String, trim: true }],
+  favoriteShows: [{ type: String, trim: true }],
+  connections:      [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  sentRequests:     [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  pendingRequests:  [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
-const User = model('User', userSchema);
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
 
+userSchema.methods.isCorrectPassword = function (password) {
+  return bcrypt.compare(password, this.password);
+};
+
+const User = model('User', userSchema);
 module.exports = User;

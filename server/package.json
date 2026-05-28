@@ -1,5 +1,5 @@
 {
-  "name": "firstbaseapp",
+  "name": "firstbaseapp-server",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -12,13 +12,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "apollo-server-express": "^3.6.2",
-    "dotenv": "^16.0.3",
-    "express": "^4.17.2",
-    "graphql": "^16.3.0",
-    "mongoose": "^6.2.0"
+    "@apollo/server": "^4.11.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "graphql": "^16.9.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.3"
+    "nodemon": "^3.1.7"
   }
 }

@@ -1,11 +1,2 @@
-div .card{
-    background-color: #BFB8AD;
-}
-
-button {
-    background-color: blue;
-    color: #BFB8AD;
-}
-h5 {
-    font-style: italic;    
-}
+/* Login page uses shared auth styles from App.css */
+/* No additional overrides needed */

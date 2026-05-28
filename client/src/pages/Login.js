@@ -1,68 +1,51 @@
 import React, { useState } from 'react';
-// import { Link } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
-// import { LOGIN_USER } from '../utils/mutations';
-import "../styling/Login.css"
-// import Auth from '../utils/auth';
+import { LOGIN_USER } from '../utils/mutations';
+import Auth from '../utils/auth';
+import '../styling/Login.css';
 
 const Login = () => {
   const [formState, setFormState] = useState({ email: '', password: '' });
-  // const [login, { error, data }] = useMutation(LOGIN_USER);
+  const [login, { error }] = useMutation(LOGIN_USER);
 
- 
-  const handleChange = (event) => { // update state based on form input changes
+  const handleChange = (event) => {
     const { name, value } = event.target;
-
-    setFormState({
-      ...formState,
-      [name]: value,
-    });
+    setFormState({ ...formState, [name]: value });
   };
 
- 
-//   const handleFormSubmit = async (event) => { // submit form
-//     event.preventDefault();
-//     // console.log(formState);
-//     try {
-//       const { data } = await login({
-//         variables: { ...formState },
-//       });
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const { data } = await login({ variables: { ...formState } });
+      Auth.login(data.login.token);
+    } catch (e) {
+      console.error(e);
+    }
+    setFormState({ email: '', password: '' });
+  };
 
-// //     // Auth.login(data.login.token);
-//     } 
-//     catch (e) {
-//       console.error(e);
-//     }}
-
-   
-//     setFormState({ // clears form after submitted
-//       email: '',
-//       password: '',
-//     });
-//   };
-// console.log("test");
   return (
     <main className="flex-row justify-center mb-4">
       <center>
-      <div className="col-12 col-lg-10">
-        <div className="card">
-          <h4 className="card-header bg-dark text-light p-2">Login</h4>
-          <div className="card-body">
-              <form >
+        <div className="col-12 col-lg-10">
+          <div className="card">
+            <h4 className="card-header bg-dark text-light p-2">Login</h4>
+            <div className="card-body">
+              <form onSubmit={handleFormSubmit}>
                 <input
                   className="form-input"
                   placeholder="Your email"
                   name="email"
                   type="email"
-                  
+                  value={formState.email}
                   onChange={handleChange}
                 />
                 <input
                   className="form-input"
-                  placeholder="Enter you password"
+                  placeholder="Enter your password"
                   name="password"
                   type="password"
-                
+                  value={formState.password}
                   onChange={handleChange}
                 />
                 <button
@@ -73,21 +56,18 @@ const Login = () => {
                   Submit
                 </button>
               </form>
-         
-
-            
-              <div className="my-3 p-3 bg-danger text-white">
-                
+              {error && (
+                <div className="my-3 p-3 bg-danger text-white">{error.message}</div>
+              )}
+              <div>
+                <h5>"To love is to burn, to be on fire." – Jane Austen</h5>
               </div>
-          <div><h5>“To love is to burn, to be on fire.” – Jane Austen</h5></div>
+            </div>
           </div>
         </div>
-      </div>
       </center>
     </main>
-    
   );
-
 };
 
 export default Login;

@@ -1,4 +1,9 @@
-.bottom {
-    position: fixed;
-    bottom: 0;
+.footer {
+  background: var(--primary);
+  color: var(--bg);
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.8125rem;
+  opacity: 0.9;
+  letter-spacing: 0.02em;
 }

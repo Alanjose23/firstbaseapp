@@ -1,47 +1,114 @@
-const { User, Date } = require('../models');
+const { GraphQLError } = require('graphql');
+const jwt = require('jsonwebtoken');
+const { User } = require('../models');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'firstbase_secret_key_change_in_production';
+const JWT_EXPIRY = '24h';
+
+const signToken = (user) =>
+  jwt.sign({ _id: user._id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+
+const requireAuth = (ctx) => {
+  if (!ctx.user) throw new GraphQLError('Not authenticated.', {
+    extensions: { code: 'UNAUTHENTICATED' },
+  });
+};
+
+const PROFILE_SELECT = '_id email name age ageRangeMin ageRangeMax bio interests favoriteShows';
+
+const populateFull = (query) =>
+  query.select('-password -sentRequests').populate([
+    { path: 'connections',     select: PROFILE_SELECT },
+    { path: 'pendingRequests', select: PROFILE_SELECT },
+  ]);
 
 const resolvers = {
   Query: {
-    Users: async () => {
-      return await User.find();
+    me: async (_, __, ctx) => {
+      requireAuth(ctx);
+      return populateFull(User.findById(ctx.user._id));
     },
-    User: async (parent, { userId }) => {
-      return await User.findOne({ _id: userId });
+
+    discoverUsers: async (_, __, ctx) => {
+      requireAuth(ctx);
+      const me = await User.findById(ctx.user._id).select('connections sentRequests pendingRequests');
+      const exclude = [me._id, ...me.connections, ...me.sentRequests, ...me.pendingRequests];
+      return User.find({ _id: { $nin: exclude } }).select(PROFILE_SELECT);
     },
-    UserDate: async (parent, {userId}) => {
-      return await User.findOne({_id: userId}).populate("date");
-    },
-    GetDate: async (parent, {id}) => {
-      return await Date.findOne({id: id})
-    },
-    GetJournal: async (parent, {userId}) => {
-      return await User.findOne({_id: userId}).populate({
-        path : 'date',
-        populate : {
-          path : 'journal'
-        }
-      })
-    },
-    GetFuture: async (parent, {userId}) => {
-      return await User.findOne({_id: userId}).populate({
-        path : 'date',
-        populate : {
-          path : 'future'
-        }
-      })
-    }
   },
 
   Mutation: {
-    addUser: async (parent, { username, password, email }) => {
-      return await User.create({ username, password, email });
+    addUser: async (_, { email, password }) => {
+      const user = await User.create({ email, password });
+      return { token: signToken(user), user };
     },
-    removeUser: async (parent, { userId }) => {
-      return await User.findOneAndDelete({ _id: userId });
+
+    login: async (_, { email, password }) => {
+      const user = await User.findOne({ email });
+      if (!user) throw new GraphQLError('No account found with that email.');
+      const valid = await user.isCorrectPassword(password);
+      if (!valid) throw new GraphQLError('Incorrect password.');
+      return { token: signToken(user), user };
     },
-    addDate: async (parent, {userId, future, journal} ) => {
-      return await Date.create({userId, future, journal});
-    },  
+
+    updateProfile: async (_, args, ctx) => {
+      requireAuth(ctx);
+      const filtered = Object.fromEntries(
+        Object.entries(args).filter(([, v]) => v !== undefined && v !== null)
+      );
+      return populateFull(
+        User.findByIdAndUpdate(ctx.user._id, { $set: filtered }, { new: true, runValidators: true })
+      );
+    },
+
+    sendRequest: async (_, { userId }, ctx) => {
+      requireAuth(ctx);
+      if (userId === String(ctx.user._id))
+        throw new GraphQLError('Cannot send a request to yourself.');
+
+      await User.findByIdAndUpdate(userId, { $addToSet: { pendingRequests: ctx.user._id } });
+
+      return populateFull(
+        User.findByIdAndUpdate(ctx.user._id, { $addToSet: { sentRequests: userId } }, { new: true })
+      );
+    },
+
+    acceptRequest: async (_, { userId }, ctx) => {
+      requireAuth(ctx);
+
+      await User.findByIdAndUpdate(userId, {
+        $pull:     { sentRequests: ctx.user._id },
+        $addToSet: { connections: ctx.user._id },
+      });
+
+      return populateFull(
+        User.findByIdAndUpdate(
+          ctx.user._id,
+          { $pull: { pendingRequests: userId }, $addToSet: { connections: userId } },
+          { new: true }
+        )
+      );
+    },
+
+    declineRequest: async (_, { userId }, ctx) => {
+      requireAuth(ctx);
+
+      await User.findByIdAndUpdate(userId, { $pull: { sentRequests: ctx.user._id } });
+
+      return populateFull(
+        User.findByIdAndUpdate(ctx.user._id, { $pull: { pendingRequests: userId } }, { new: true })
+      );
+    },
+
+    removeConnection: async (_, { userId }, ctx) => {
+      requireAuth(ctx);
+
+      await User.findByIdAndUpdate(userId, { $pull: { connections: ctx.user._id } });
+
+      return populateFull(
+        User.findByIdAndUpdate(ctx.user._id, { $pull: { connections: userId } }, { new: true })
+      );
+    },
   },
 };
 

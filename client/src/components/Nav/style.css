@@ -1,15 +1,68 @@
-ul {
-    background-color: #8A3033;
-    padding-left:0px;
-    border-radius: 5px;
-    text-align: center;
+.navbar {
+  background: var(--primary);
+  height: 64px;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(138, 48, 51, 0.35);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-li{
-    display:inline;
-    padding: 10px 20px;
-    color: #EADEDA;
-    border-radius: 3px;
-    border:solid
-    
+.navbar-brand a {
+  color: var(--bg);
+  text-decoration: none;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.4rem;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  opacity: 0.95;
+  transition: opacity var(--transition);
+}
+
+.navbar-brand a:hover {
+  opacity: 1;
+}
+
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 0.25rem;
+}
+
+.navbar-links li a {
+  color: var(--bg);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  opacity: 0.85;
+  transition: opacity var(--transition), background var(--transition);
+}
+
+.navbar-links li a:hover {
+  opacity: 1;
+  background: rgba(234, 222, 218, 0.15);
+}
+
+.nav-logout {
+  background: transparent;
+  border: 1.5px solid rgba(234, 222, 218, 0.5);
+  color: var(--bg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity var(--transition), background var(--transition);
+}
+
+.nav-logout:hover {
+  opacity: 1;
+  background: rgba(234, 222, 218, 0.15);
 }

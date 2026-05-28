@@ -1,37 +1,47 @@
-const { gql } = require('apollo-server-express');
-
-const typeDefs = gql`
+const typeDefs = `#graphql
   type User {
     _id: ID
-    username: String
-    password: String
     email: String
-    date: ID
+    name: String
+    age: Int
+    ageRangeMin: Int
+    ageRangeMax: Int
+    bio: String
+    interests: [String]
+    favoriteShows: [String]
+    connections:     [User]
+    pendingRequests: [User]
   }
 
-  type Date {
-    _id: ID
-    user_id: ID
-    future: String
-    journal: String
+  type Auth {
+    token: ID!
+    user: User
   }
 
   type Query {
-    Users: [User]!
-    User(userId: ID!): User
-    UserDate(userId: ID!): User
-    GetDate(id: ID!): Date
-    GetJournal(userId: ID!): User
-    GetFuture(userId: ID!): User
+    me: User
+    discoverUsers: [User]
   }
 
   type Mutation {
-    addUser(username: String!, password: String!, email: String!): User
-    removeUser(userId: ID!): User
-    addDate(userId: ID!, future: String!, journal: String!): Date
+    addUser(email: String!, password: String!): Auth
+    login(email: String!, password: String!): Auth
 
+    updateProfile(
+      name: String
+      age: Int
+      ageRangeMin: Int
+      ageRangeMax: Int
+      bio: String
+      interests: [String]
+      favoriteShows: [String]
+    ): User
+
+    sendRequest(userId: ID!): User
+    acceptRequest(userId: ID!): User
+    declineRequest(userId: ID!): User
+    removeConnection(userId: ID!): User
   }
-`
-
+`;
 
 module.exports = typeDefs;

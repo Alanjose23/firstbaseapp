@@ -1,3 +1,188 @@
-*{
-  background-color: #EADEDA;
+/* ── Design tokens ───────────────────────────────────────── */
+:root {
+  --bg:           #EADEDA;
+  --surface:      #FAF5F5;
+  --surface-alt:  #F0E8E8;
+  --primary:      #8A3033;
+  --primary-dark: #6B2326;
+  --primary-glow: rgba(138, 48, 51, 0.14);
+  --muted:        #BFB8AD;
+  --text:         #2D1A1B;
+  --text-muted:   #7A6465;
+  --border:       #D4C4C5;
+  --radius:       16px;
+  --radius-sm:    8px;
+  --shadow:       0 4px 20px rgba(138, 48, 51, 0.10);
+  --shadow-lg:    0 10px 40px rgba(138, 48, 51, 0.16);
+  --transition:   0.2s ease;
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.6;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Auth layout ─────────────────────────────────────────── */
+.auth-page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 6rem;
+}
+
+.auth-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 2.75rem 2.5rem;
+  width: 100%;
+  max-width: 440px;
+}
+
+.auth-icon {
+  text-align: center;
+  font-size: 2.25rem;
+  margin-bottom: 0.75rem;
+  line-height: 1;
+}
+
+.auth-card h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.75rem;
+  font-style: italic;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+.auth-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* ── Form elements ───────────────────────────────────────── */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  color: var(--text);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.65;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 0.875rem;
+  margin-top: 1.5rem;
+  background: var(--primary);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background var(--transition), transform 0.12s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  padding: 0.65rem 1.25rem;
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-secondary:hover {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+/* ── Alert / error ───────────────────────────────────────── */
+.alert-error {
+  background: #fff0f0;
+  border: 1px solid #f0baba;
+  border-radius: var(--radius-sm);
+  color: var(--primary-dark);
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+}
+
+/* ── Auth quote footer ───────────────────────────────────── */
+.auth-quote {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.65;
 }
