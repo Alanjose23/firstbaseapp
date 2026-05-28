@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { QUERY_ME, QUERY_DISCOVER } from '../utils/queries';
+import { QUERY_ME, QUERY_DISCOVER, GET_CONVERSATION } from '../utils/queries';
 import {
   UPDATE_PROFILE,
   SEND_REQUEST,
   ACCEPT_REQUEST,
   DECLINE_REQUEST,
   REMOVE_CONNECTION,
+  SEND_MESSAGE,
 } from '../utils/mutations';
 import Auth from '../utils/auth';
 import '../styling/UserandDate.css';
@@ -20,24 +21,42 @@ const avatarColor = (str = '') => {
 const initial = (name, email) =>
   (name?.trim() ? name.trim()[0] : email?.[0] ?? '?').toUpperCase();
 
+const TIERS = [
+  {
+    id: 'free',
+    label: 'Free',
+    price: 'Free forever',
+    comingSoon: false,
+    features: ['Unlimited connections', 'Direct messaging', 'Date ideas', 'Invite friends'],
+  },
+  {
+    id: 'pro',
+    label: 'Pro',
+    price: 'Coming Soon',
+    comingSoon: true,
+    features: [
+      'Everything in Free',
+      'AI Date Coach — personalised tips',
+      'Voice assistant to set up dates',
+      'Priority profile visibility',
+    ],
+  },
+];
+
 /* ── TagEditor sub-component ─────────────────────────────── */
 function TagEditor({ tags = [], onChange, placeholder }) {
   const [input, setInput] = useState('');
-
   const add = () => {
     const t = input.trim();
     if (t && !tags.includes(t)) onChange([...tags, t]);
     setInput('');
   };
-
   return (
     <div className="tag-editor">
       {tags.map((t) => (
         <span key={t} className="tag-editor-chip">
           {t}
-          <button type="button" onClick={() => onChange(tags.filter((x) => x !== t))}>
-            ×
-          </button>
+          <button type="button" onClick={() => onChange(tags.filter((x) => x !== t))}>×</button>
         </span>
       ))}
       <input
@@ -46,42 +65,116 @@ function TagEditor({ tags = [], onChange, placeholder }) {
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') { e.preventDefault(); add(); }
-          if (e.key === ',' )    { e.preventDefault(); add(); }
+          if (e.key === ',')     { e.preventDefault(); add(); }
         }}
       />
     </div>
   );
 }
 
+/* ── ChatPane sub-component ──────────────────────────────── */
+function ChatPane({ me, contact, onClose }) {
+  const [text, setText] = useState('');
+  const bottomRef = useRef(null);
+
+  const { data, startPolling, stopPolling } = useQuery(GET_CONVERSATION, {
+    variables: { userId: contact._id },
+    fetchPolicy: 'network-only',
+  });
+  const [sendMessage] = useMutation(SEND_MESSAGE);
+
+  const messages = data?.getConversation ?? [];
+
+  useEffect(() => {
+    startPolling(3000);
+    return () => stopPolling();
+  }, [startPolling, stopPolling]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSend = async (e) => {
+    e.preventDefault();
+    const content = text.trim();
+    if (!content) return;
+    setText('');
+    await sendMessage({ variables: { recipientId: contact._id, content } });
+  };
+
+  const formatTime = (ts) => {
+    if (!ts) return '';
+    const d = new Date(Number(ts));
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div className="chat-pane">
+      <div className="chat-pane-header">
+        <div className="chat-pane-avatar" style={{ background: avatarColor(contact.email) }}>
+          {initial(contact.name, contact.email)}
+        </div>
+        <span className="chat-pane-name">{contact.name || contact.email.split('@')[0]}</span>
+        <button className="chat-pane-close" onClick={onClose}>✕</button>
+      </div>
+
+      <div className="chat-messages">
+        {messages.length === 0 && (
+          <p className="chat-empty">No messages yet — say hi!</p>
+        )}
+        {messages.map((msg) => {
+          const mine = String(msg.sender._id) === String(me._id);
+          return (
+            <div key={msg._id} className={`chat-bubble-wrap${mine ? ' mine' : ''}`}>
+              <div className={`chat-bubble${mine ? ' chat-bubble--mine' : ' chat-bubble--theirs'}`}>
+                {msg.content}
+                <span className="chat-time">{formatTime(msg.createdAt)}</span>
+              </div>
+            </div>
+          );
+        })}
+        <div ref={bottomRef} />
+      </div>
+
+      <form className="chat-input-row" onSubmit={handleSend}>
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={`Message ${contact.name || 'them'}…`}
+          autoFocus
+        />
+        <button type="submit" className="btn-send" disabled={!text.trim()}>Send</button>
+      </form>
+    </div>
+  );
+}
+
 /* ── Date ideas data ─────────────────────────────────────── */
 const IDEAS = [
-  // Couple
-  { id: 1,  emoji: '🌅', title: 'Sunrise Hike',        desc: 'Hit a trail before sunrise. Bring coffee and watch the city wake up.',           cat: 'Couple'      },
-  { id: 2,  emoji: '🍕', title: 'Cook Together',        desc: 'Pick a recipe neither of you has made. Tackle it. Fail together.',                cat: 'Couple'      },
-  { id: 3,  emoji: '🎨', title: 'Paint Night',          desc: 'Set up canvases at home, open wine, and laugh at the results.',                   cat: 'Couple'      },
-  { id: 4,  emoji: '⭐', title: 'Stargazing',           desc: 'Find a dark spot, bring a blanket, and name constellations badly.',               cat: 'Couple'      },
-  { id: 5,  emoji: '🌿', title: 'Botanical Garden',     desc: 'Pack a picnic, find a quiet corner, and stay until they kick you out.',           cat: 'Couple'      },
-  { id: 6,  emoji: '📚', title: 'Bookshop Wander',      desc: 'Each pick a book for the other. No hints. Swap and read aloud later.',            cat: 'Couple'      },
-  { id: 7,  emoji: '🚴', title: 'Bike the City',        desc: 'Rent bikes, no map — just turn wherever looks interesting.',                       cat: 'Couple'      },
-  { id: 8,  emoji: '🎬', title: 'Drive-In Movie',       desc: 'Old-school cinema with snacks you smuggled in your hoodie.',                      cat: 'Couple'      },
-  { id: 9,  emoji: '🍷', title: 'Wine Tasting',         desc: 'Visit a local vineyard or wine bar and pretend to know what you\'re tasting.',    cat: 'Couple'      },
-  { id: 10, emoji: '🌊', title: 'Kayaking',             desc: 'Rent a tandem kayak and discover who\'s actually in charge.',                     cat: 'Couple'      },
-  // Double Date
-  { id: 11, emoji: '🎳', title: 'Bowling Night',        desc: 'Four people, two lanes, one trophy argument. Perfect double date.',               cat: 'Double Date' },
-  { id: 12, emoji: '🧩', title: 'Board Game Café',      desc: 'Pick a game none of you have played. Alliances will fracture.',                   cat: 'Double Date' },
-  { id: 13, emoji: '🏖️', title: 'Beach Volleyball',    desc: 'Couples vs. couples. The losers buy dinner.',                                      cat: 'Double Date' },
-  { id: 14, emoji: '🍻', title: 'Trivia Night',         desc: 'Form a team, destroy strangers, bicker lovingly about wrong answers.',            cat: 'Double Date' },
-  { id: 15, emoji: '🎡', title: 'Amusement Park',       desc: 'Roller coasters, funnel cake, and finding out who screams loudest.',              cat: 'Double Date' },
-  { id: 16, emoji: '🛶', title: 'Canoe Trip',           desc: 'Pack lunch, rent canoes, race each other down the river.',                        cat: 'Double Date' },
-  { id: 17, emoji: '🏌️', title: 'Mini Golf',           desc: 'Perfectly competitive, never takes itself seriously. Ideal.',                     cat: 'Double Date' },
-  // Nightlife
-  { id: 18, emoji: '🎵', title: 'Jazz Club Night',      desc: 'Low lights, good drinks, live music. Dress up a little.',                         cat: 'Nightlife'   },
-  { id: 19, emoji: '💃', title: 'Salsa Lesson',         desc: 'Take a beginners class together. Neither of you will be graceful. That\'s fine.', cat: 'Nightlife'   },
-  { id: 20, emoji: '🎤', title: 'Karaoke Night',        desc: 'Commit fully to whatever song you pick. This is not a drill.',                    cat: 'Nightlife'   },
-  { id: 21, emoji: '🍸', title: 'Cocktail Class',       desc: 'Learn three cocktails from a proper bartender, then make them badly at home.',    cat: 'Nightlife'   },
-  { id: 22, emoji: '🎭', title: 'Comedy Club',          desc: 'Laugh so hard you cry. Check the lineup first — trust.',                          cat: 'Nightlife'   },
-  { id: 23, emoji: '🎰', title: 'Casino Night',         desc: 'Dress up, set a spend limit, and see who\'s the better poker face.',              cat: 'Nightlife'   },
-  { id: 24, emoji: '🏛️', title: 'Museum After Dark',   desc: 'Many museums host evening events. Way more atmospheric than daytime.',            cat: 'Nightlife'   },
+  { id: 1,  emoji: '🌅', title: 'Sunrise Hike',      desc: 'Hit a trail before sunrise. Bring coffee and watch the city wake up.',           cat: 'Couple'      },
+  { id: 2,  emoji: '🍕', title: 'Cook Together',      desc: 'Pick a recipe neither of you has made. Tackle it. Fail together.',                cat: 'Couple'      },
+  { id: 3,  emoji: '🎨', title: 'Paint Night',        desc: 'Set up canvases at home, open wine, and laugh at the results.',                   cat: 'Couple'      },
+  { id: 4,  emoji: '⭐', title: 'Stargazing',         desc: 'Find a dark spot, bring a blanket, and name constellations badly.',               cat: 'Couple'      },
+  { id: 5,  emoji: '🌿', title: 'Botanical Garden',   desc: 'Pack a picnic, find a quiet corner, and stay until they kick you out.',           cat: 'Couple'      },
+  { id: 6,  emoji: '📚', title: 'Bookshop Wander',    desc: 'Each pick a book for the other. No hints. Swap and read aloud later.',            cat: 'Couple'      },
+  { id: 7,  emoji: '🚴', title: 'Bike the City',      desc: 'Rent bikes, no map — just turn wherever looks interesting.',                       cat: 'Couple'      },
+  { id: 8,  emoji: '🎬', title: 'Drive-In Movie',     desc: 'Old-school cinema with snacks you smuggled in your hoodie.',                      cat: 'Couple'      },
+  { id: 9,  emoji: '🍷', title: 'Wine Tasting',       desc: "Visit a local vineyard or wine bar and pretend to know what you're tasting.",     cat: 'Couple'      },
+  { id: 10, emoji: '🌊', title: 'Kayaking',           desc: "Rent a tandem kayak and discover who's actually in charge.",                      cat: 'Couple'      },
+  { id: 11, emoji: '🎳', title: 'Bowling Night',      desc: 'Four people, two lanes, one trophy argument. Perfect double date.',               cat: 'Double Date' },
+  { id: 12, emoji: '🧩', title: 'Board Game Café',    desc: 'Pick a game none of you have played. Alliances will fracture.',                   cat: 'Double Date' },
+  { id: 13, emoji: '🏖️', title: 'Beach Volleyball',  desc: 'Couples vs. couples. The losers buy dinner.',                                      cat: 'Double Date' },
+  { id: 14, emoji: '🍻', title: 'Trivia Night',       desc: 'Form a team, destroy strangers, bicker lovingly about wrong answers.',            cat: 'Double Date' },
+  { id: 15, emoji: '🎡', title: 'Amusement Park',     desc: 'Roller coasters, funnel cake, and finding out who screams loudest.',              cat: 'Double Date' },
+  { id: 16, emoji: '🛶', title: 'Canoe Trip',         desc: 'Pack lunch, rent canoes, race each other down the river.',                        cat: 'Double Date' },
+  { id: 17, emoji: '🏌️', title: 'Mini Golf',         desc: 'Perfectly competitive, never takes itself seriously. Ideal.',                     cat: 'Double Date' },
+  { id: 18, emoji: '🎵', title: 'Jazz Club Night',    desc: 'Low lights, good drinks, live music. Dress up a little.',                         cat: 'Nightlife'   },
+  { id: 19, emoji: '💃', title: 'Salsa Lesson',       desc: "Take a beginners class together. Neither of you will be graceful. That's fine.",  cat: 'Nightlife'   },
+  { id: 20, emoji: '🎤', title: 'Karaoke Night',      desc: 'Commit fully to whatever song you pick. This is not a drill.',                    cat: 'Nightlife'   },
+  { id: 21, emoji: '🍸', title: 'Cocktail Class',     desc: 'Learn three cocktails from a proper bartender, then make them badly at home.',    cat: 'Nightlife'   },
+  { id: 22, emoji: '🎭', title: 'Comedy Club',        desc: 'Laugh so hard you cry. Check the lineup first — trust.',                          cat: 'Nightlife'   },
+  { id: 23, emoji: '🎰', title: 'Casino Night',       desc: "Dress up, set a spend limit, and see who's the better poker face.",               cat: 'Nightlife'   },
+  { id: 24, emoji: '🏛️', title: 'Museum After Dark', desc: 'Many museums host evening events. Way more atmospheric than daytime.',            cat: 'Nightlife'   },
 ];
 
 const CATEGORIES = ['All', 'Couple', 'Double Date', 'Nightlife'];
@@ -90,37 +183,43 @@ const REFETCH = { refetchQueries: [{ query: QUERY_ME }, { query: QUERY_DISCOVER 
 
 /* ── Main component ──────────────────────────────────────── */
 export default function NetworkPage() {
-  /* ── auth guard ── */
   useEffect(() => {
     if (!Auth.loggedIn()) window.location.assign('/login');
   }, []);
 
-  /* ── queries ── */
-  const { data: meData,      loading: meLoading      } = useQuery(QUERY_ME);
+  const { data: meData,       loading: meLoading      } = useQuery(QUERY_ME);
   const { data: discoverData, loading: discoverLoading } = useQuery(QUERY_DISCOVER);
-  const me        = meData?.me;
-  const discover  = discoverData?.discoverUsers ?? [];
+  const me      = meData?.me;
+  const discover = discoverData?.discoverUsers ?? [];
 
   /* ── mutations ── */
-  const [updateProfile] = useMutation(UPDATE_PROFILE,   { refetchQueries: [{ query: QUERY_ME }] });
-  const [sendRequest]   = useMutation(SEND_REQUEST,     REFETCH);
-  const [acceptRequest] = useMutation(ACCEPT_REQUEST,   REFETCH);
-  const [declineRequest]= useMutation(DECLINE_REQUEST,  REFETCH);
+  const [updateProfile] = useMutation(UPDATE_PROFILE,    { refetchQueries: [{ query: QUERY_ME }] });
+  const [sendRequest]   = useMutation(SEND_REQUEST,      REFETCH);
+  const [acceptRequest] = useMutation(ACCEPT_REQUEST,    REFETCH);
+  const [declineRequest]= useMutation(DECLINE_REQUEST,   REFETCH);
   const [removeConn]    = useMutation(REMOVE_CONNECTION, REFETCH);
 
   /* ── profile edit state ── */
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({});
+  const [form, setForm]       = useState({});
+
+  const setSocial = (field, value) =>
+    setForm((f) => ({ ...f, socialMedia: { ...f.socialMedia, [field]: value } }));
 
   const openEdit = () => {
     setForm({
-      name:         me?.name         ?? '',
-      age:          me?.age          ?? '',
-      ageRangeMin:  me?.ageRangeMin  ?? 18,
-      ageRangeMax:  me?.ageRangeMax  ?? 99,
-      bio:          me?.bio          ?? '',
-      interests:    me?.interests    ?? [],
+      name:          me?.name          ?? '',
+      age:           me?.age           ?? '',
+      ageRangeMin:   me?.ageRangeMin   ?? 18,
+      ageRangeMax:   me?.ageRangeMax   ?? 99,
+      bio:           me?.bio           ?? '',
+      interests:     me?.interests     ?? [],
       favoriteShows: me?.favoriteShows ?? [],
+      socialMedia: {
+        instagram: me?.socialMedia?.instagram ?? '',
+        twitter:   me?.socialMedia?.twitter   ?? '',
+        tiktok:    me?.socialMedia?.tiktok    ?? '',
+      },
     });
     setEditing(true);
   };
@@ -129,7 +228,7 @@ export default function NetworkPage() {
     e.preventDefault();
     const vars = {
       ...form,
-      age:         form.age  ? Number(form.age)  : undefined,
+      age:         form.age ? Number(form.age) : undefined,
       ageRangeMin: Number(form.ageRangeMin),
       ageRangeMax: Number(form.ageRangeMax),
     };
@@ -137,8 +236,37 @@ export default function NetworkPage() {
     setEditing(false);
   };
 
+  /* ── invite link ── */
+  const [copied,   setCopied]   = useState(false);
+  const [shareMsg, setShareMsg] = useState('');
+  const inviteLink = `${window.location.origin}/signup?invite=${me?._id ?? ''}`;
+
+  const copyInviteLink = () => {
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  const shareOnTwitter = () => {
+    const text = 'Join me on First Base — a new way to meet people. Sign up:';
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text + ' ' + inviteLink)}`,
+      '_blank'
+    );
+  };
+  const copyForPlatform = (platform) => {
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      setShareMsg(`Link copied — paste it in your ${platform} bio or story!`);
+      setTimeout(() => setShareMsg(''), 3000);
+    });
+  };
+
+  /* ── chat state ── */
+  const [chatContact, setChatContact] = useState(null);
+  const [showUpgradeFor, setShowUpgradeFor] = useState(null);
+
   /* ── date ideas state ── */
-  const [activeCat, setActiveCat] = useState('All');
+  const [activeCat, setActiveCat]   = useState('All');
   const [savedIdeas, setSavedIdeas] = useState(() => {
     try { return JSON.parse(localStorage.getItem('fb_ideas') || '[]'); }
     catch { return []; }
@@ -171,8 +299,11 @@ export default function NetworkPage() {
               <div className="profile-name">{me?.name || 'Set your name →'}</div>
               <div className="profile-email-sub">{me?.email}</div>
               <div className="profile-stats">
-                <span>{me?.connections?.length ?? 0}</span> connection{me?.connections?.length !== 1 ? 's' : ''}
+                <span>{me?.connections?.length ?? 0}</span>
+                {' connection'}{me?.connections?.length !== 1 ? 's' : ''}
                 {me?.age && <>&nbsp;·&nbsp;<span>{me.age}</span> yrs</>}
+                &nbsp;·&nbsp;
+                <span className="tier-inline-badge">{(me?.tier ?? 'free').toUpperCase()}</span>
               </div>
             </div>
             {!editing && (
@@ -185,13 +316,15 @@ export default function NetworkPage() {
               <div className="field-row">
                 <div className="field-group">
                   <label>Full Name</label>
-                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  <input value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
                     placeholder="Your name" />
                 </div>
                 <div className="field-group">
                   <label>Age</label>
                   <input type="number" min={18} max={100}
-                    value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })}
+                    value={form.age}
+                    onChange={(e) => setForm({ ...form, age: e.target.value })}
                     placeholder="e.g. 28" />
                 </div>
               </div>
@@ -200,12 +333,14 @@ export default function NetworkPage() {
                 <div className="field-group">
                   <label>Looking for (min age)</label>
                   <input type="number" min={18} max={99}
-                    value={form.ageRangeMin} onChange={(e) => setForm({ ...form, ageRangeMin: e.target.value })}/>
+                    value={form.ageRangeMin}
+                    onChange={(e) => setForm({ ...form, ageRangeMin: e.target.value })} />
                 </div>
                 <div className="field-group">
                   <label>Looking for (max age)</label>
                   <input type="number" min={18} max={99}
-                    value={form.ageRangeMax} onChange={(e) => setForm({ ...form, ageRangeMax: e.target.value })}/>
+                    value={form.ageRangeMax}
+                    onChange={(e) => setForm({ ...form, ageRangeMax: e.target.value })} />
                 </div>
               </div>
 
@@ -226,6 +361,30 @@ export default function NetworkPage() {
                 <label>Favourite Shows (Enter or comma to add)</label>
                 <TagEditor tags={form.favoriteShows} placeholder="e.g. The Bear"
                   onChange={(v) => setForm({ ...form, favoriteShows: v })} />
+              </div>
+
+              <div className="field-group">
+                <label>Social Media</label>
+                <div className="social-inputs">
+                  <div className="social-input-row">
+                    <span className="social-input-prefix">📸</span>
+                    <input placeholder="Instagram handle (no @)"
+                      value={form.socialMedia?.instagram ?? ''}
+                      onChange={(e) => setSocial('instagram', e.target.value)} />
+                  </div>
+                  <div className="social-input-row">
+                    <span className="social-input-prefix">𝕏</span>
+                    <input placeholder="Twitter / X handle (no @)"
+                      value={form.socialMedia?.twitter ?? ''}
+                      onChange={(e) => setSocial('twitter', e.target.value)} />
+                  </div>
+                  <div className="social-input-row">
+                    <span className="social-input-prefix">🎵</span>
+                    <input placeholder="TikTok handle (no @)"
+                      value={form.socialMedia?.tiktok ?? ''}
+                      onChange={(e) => setSocial('tiktok', e.target.value)} />
+                  </div>
+                </div>
               </div>
 
               <div className="edit-actions">
@@ -263,8 +422,31 @@ export default function NetworkPage() {
               {me?.favoriteShows?.length > 0 && (
                 <div className="profile-field" style={{ marginTop: '0.75rem' }}>
                   <div className="profile-field-label">Favourite Shows</div>
-                  <div className="profile-field-value">
-                    {me.favoriteShows.join(' · ')}
+                  <div className="profile-field-value">{me.favoriteShows.join(' · ')}</div>
+                </div>
+              )}
+              {(me?.socialMedia?.instagram || me?.socialMedia?.twitter || me?.socialMedia?.tiktok) && (
+                <div className="profile-field" style={{ marginTop: '0.75rem' }}>
+                  <div className="profile-field-label">Social Media</div>
+                  <div className="social-links">
+                    {me.socialMedia.instagram && (
+                      <a href={`https://instagram.com/${me.socialMedia.instagram}`}
+                        target="_blank" rel="noreferrer" className="social-link">
+                        📸 @{me.socialMedia.instagram}
+                      </a>
+                    )}
+                    {me.socialMedia.twitter && (
+                      <a href={`https://x.com/${me.socialMedia.twitter}`}
+                        target="_blank" rel="noreferrer" className="social-link">
+                        𝕏 @{me.socialMedia.twitter}
+                      </a>
+                    )}
+                    {me.socialMedia.tiktok && (
+                      <a href={`https://tiktok.com/@${me.socialMedia.tiktok}`}
+                        target="_blank" rel="noreferrer" className="social-link">
+                        🎵 @{me.socialMedia.tiktok}
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
@@ -272,6 +454,172 @@ export default function NetworkPage() {
                 <p className="profile-field-empty">Complete your profile to attract more connections.</p>
               )}
             </>
+          )}
+        </div>
+
+        {/* ── Membership Plans ── */}
+        <div className="section-card">
+          <div className="section-header">
+            <span className="section-title">Membership Plans</span>
+            <span className="tier-current-badge">{(me?.tier ?? 'free').toUpperCase()}</span>
+          </div>
+          <div className="tier-grid">
+            {TIERS.map((t) => {
+              const isActive = (me?.tier ?? 'free') === t.id;
+              return (
+                <div key={t.id}
+                  className={`tier-card${isActive ? ' tier-active' : ''}${t.comingSoon ? ' tier-locked' : ''}`}>
+                  {t.comingSoon && <span className="tier-coming-soon-badge">Coming Soon</span>}
+                  <div className="tier-name">{t.label}</div>
+                  <div className="tier-price">{t.price}</div>
+                  <ul className="tier-features">
+                    {t.features.map((f) => (
+                      <li key={f}><span className="tier-check">✓</span> {f}</li>
+                    ))}
+                  </ul>
+                  {isActive
+                    ? <div className="tier-active-label">Your Current Plan ✓</div>
+                    : t.comingSoon
+                      ? <button className="btn-tier-cta" disabled>Notify Me</button>
+                      : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Pro Features (placeholder UI) ── */}
+        <div className="section-card">
+          <div className="section-header">
+            <span className="section-title">Pro Features</span>
+            <span className="tier-coming-soon-inline">Coming Soon</span>
+          </div>
+
+          <div className="pro-features-grid">
+            {/* Date Coach */}
+            <div className="pro-feature-card">
+              <div className="pro-feature-icon">🧑‍🏫</div>
+              <div className="pro-feature-title">AI Date Coach</div>
+              <div className="pro-feature-desc">
+                Get personalised tips based on your profile — conversation starters, venue ideas,
+                and real-time coaching to make every date count.
+              </div>
+              <div className="pro-feature-preview">
+                <div className="coach-tip-mock">
+                  <span className="coach-tip-label">Today's Tip</span>
+                  <p>"Ask about the last trip they took. Travel stories reveal a lot."</p>
+                </div>
+              </div>
+              <button className="btn-pro-unlock"
+                onClick={() => setShowUpgradeFor('Date Coach')}>
+                Unlock with Pro
+              </button>
+            </div>
+
+            {/* Voice Assistant */}
+            <div className="pro-feature-card">
+              <div className="pro-feature-icon">🎙️</div>
+              <div className="pro-feature-title">Voice Assistant</div>
+              <div className="pro-feature-desc">
+                Tell your assistant who you're interested in and let it handle the awkward
+                "want to go out?" moment — it'll draft a message, pick a spot, and suggest a time.
+              </div>
+              <div className="pro-feature-preview">
+                <div className="voice-mock">
+                  <div className="voice-mic-btn" onClick={() => setShowUpgradeFor('Voice Assistant')}>
+                    🎙️
+                  </div>
+                  <span className="voice-mock-label">Tap to set up a date</span>
+                </div>
+              </div>
+              <button className="btn-pro-unlock"
+                onClick={() => setShowUpgradeFor('Voice Assistant')}>
+                Unlock with Pro
+              </button>
+            </div>
+          </div>
+
+          {/* Upgrade prompt overlay */}
+          {showUpgradeFor && (
+            <div className="upgrade-overlay" onClick={() => setShowUpgradeFor(null)}>
+              <div className="upgrade-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="upgrade-modal-icon">🔒</div>
+                <h3>{showUpgradeFor}</h3>
+                <p>This is a <strong>Pro</strong> feature — launching soon!</p>
+                <p className="upgrade-modal-sub">
+                  We're putting the finishing touches on it. You'll be the first to know.
+                </p>
+                <button className="btn-primary" style={{ marginTop: 0 }}
+                  onClick={() => setShowUpgradeFor(null)}>
+                  Got it
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Invite Friends ── */}
+        <div className="section-card">
+          <div className="section-header">
+            <span className="section-title">Invite Friends</span>
+          </div>
+          <p className="invite-desc">Share your personal link and grow your network.</p>
+          <div className="invite-link-row">
+            <span className="invite-link-text">{inviteLink}</span>
+            <button className={`btn-copy${copied ? ' btn-copy--done' : ''}`} onClick={copyInviteLink}>
+              {copied ? 'Copied ✓' : 'Copy'}
+            </button>
+          </div>
+          <div className="invite-platforms">
+            <span className="invite-via-label">Share via</span>
+            <button className="btn-platform btn-platform--twitter" onClick={shareOnTwitter}>
+              𝕏 Twitter
+            </button>
+            <button className="btn-platform" onClick={() => copyForPlatform('Instagram')}>
+              📸 Instagram
+            </button>
+            <button className="btn-platform" onClick={() => copyForPlatform('TikTok')}>
+              🎵 TikTok
+            </button>
+          </div>
+          {shareMsg && <p className="invite-share-msg">{shareMsg}</p>}
+        </div>
+
+        {/* ── Messages ── */}
+        <div className="section-card">
+          <div className="section-header">
+            <span className="section-title">Messages</span>
+            <span className="section-count">connections only</span>
+          </div>
+          {!me?.connections?.length ? (
+            <p className="empty-state">Connect with someone to start messaging ↓</p>
+          ) : (
+            <div className="messages-layout">
+              <div className="messages-sidebar">
+                {me.connections.map((u) => (
+                  <button
+                    key={u._id}
+                    className={`msg-contact${chatContact?._id === u._id ? ' active' : ''}`}
+                    onClick={() => setChatContact(chatContact?._id === u._id ? null : u)}
+                  >
+                    <div className="msg-contact-avatar" style={{ background: avatarColor(u.email) }}>
+                      {initial(u.name, u.email)}
+                    </div>
+                    <span className="msg-contact-name">
+                      {u.name || u.email.split('@')[0]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {chatContact ? (
+                <ChatPane me={me} contact={chatContact} onClose={() => setChatContact(null)} />
+              ) : (
+                <div className="chat-placeholder">
+                  <p>Select a connection to start chatting</p>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
@@ -360,9 +708,7 @@ export default function NetworkPage() {
                       {initial(u.name, u.email)}
                     </div>
                     <div>
-                      <div className="discover-name">
-                        {u.name || u.email.split('@')[0]}
-                      </div>
+                      <div className="discover-name">{u.name || u.email.split('@')[0]}</div>
                       <div className="discover-age">
                         {u.age ? `Age ${u.age}` : 'Age not set'}
                         {u.ageRangeMin && u.ageRangeMax
@@ -371,9 +717,7 @@ export default function NetworkPage() {
                       </div>
                     </div>
                   </div>
-
                   {u.bio && <p className="discover-bio">{u.bio}</p>}
-
                   <div className="discover-meta">
                     {u.interests?.length > 0 && (
                       <div className="discover-meta-row">
@@ -392,7 +736,6 @@ export default function NetworkPage() {
                       </div>
                     )}
                   </div>
-
                   <div className="discover-card-footer">
                     <button
                       className="btn-primary"

@@ -1,4 +1,16 @@
 const typeDefs = `#graphql
+  type SocialMedia {
+    instagram: String
+    twitter:   String
+    tiktok:    String
+  }
+
+  input SocialMediaInput {
+    instagram: String
+    twitter:   String
+    tiktok:    String
+  }
+
   type User {
     _id: ID
     email: String
@@ -9,8 +21,18 @@ const typeDefs = `#graphql
     bio: String
     interests: [String]
     favoriteShows: [String]
+    socialMedia: SocialMedia
+    tier: String
     connections:     [User]
     pendingRequests: [User]
+  }
+
+  type Message {
+    _id: ID
+    sender:    User
+    recipient: User
+    content:   String
+    createdAt: String
   }
 
   type Auth {
@@ -21,6 +43,7 @@ const typeDefs = `#graphql
   type Query {
     me: User
     discoverUsers: [User]
+    getConversation(userId: ID!): [Message]
   }
 
   type Mutation {
@@ -35,12 +58,14 @@ const typeDefs = `#graphql
       bio: String
       interests: [String]
       favoriteShows: [String]
+      socialMedia: SocialMediaInput
     ): User
 
     sendRequest(userId: ID!): User
     acceptRequest(userId: ID!): User
     declineRequest(userId: ID!): User
     removeConnection(userId: ID!): User
+    sendMessage(recipientId: ID!, content: String!): Message
   }
 `;
 

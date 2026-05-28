@@ -5,6 +5,7 @@ import FindUser from './pages/UserandDate';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Home from './pages/Home';
+import About from './pages/About';
 import Contact from './components/Contact';
 import './App.css';
 
@@ -14,10 +15,11 @@ function App() {
       <div>
         <Nav />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/"       element={<Home />} />
+          <Route path="/login"  element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/user" element={<FindUser />} />
+          <Route path="/user"   element={<FindUser />} />
+          <Route path="/about"  element={<About />} />
         </Routes>
         <Contact />
       </div>

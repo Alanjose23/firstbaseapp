@@ -37,6 +37,16 @@ const userSchema = new Schema({
   connections:      [{ type: Schema.Types.ObjectId, ref: 'User' }],
   sentRequests:     [{ type: Schema.Types.ObjectId, ref: 'User' }],
   pendingRequests:  [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  socialMedia: {
+    instagram: { type: String, default: '' },
+    twitter:   { type: String, default: '' },
+    tiktok:    { type: String, default: '' },
+  },
+  tier: {
+    type: String,
+    enum: ['free', 'pro'],
+    default: 'free',
+  },
 });
 
 userSchema.pre('save', async function (next) {

@@ -27,6 +27,7 @@ export const UPDATE_PROFILE = gql`
     $bio: String
     $interests: [String]
     $favoriteShows: [String]
+    $socialMedia: SocialMediaInput
   ) {
     updateProfile(
       name: $name
@@ -36,8 +37,10 @@ export const UPDATE_PROFILE = gql`
       bio: $bio
       interests: $interests
       favoriteShows: $favoriteShows
+      socialMedia: $socialMedia
     ) {
-      _id name age ageRangeMin ageRangeMax bio interests favoriteShows
+      _id name age ageRangeMin ageRangeMax bio interests favoriteShows tier
+      socialMedia { instagram twitter tiktok }
     }
   }
 `;
@@ -63,5 +66,15 @@ export const DECLINE_REQUEST = gql`
 export const REMOVE_CONNECTION = gql`
   mutation RemoveConnection($userId: ID!) {
     removeConnection(userId: $userId) { _id }
+  }
+`;
+
+export const SEND_MESSAGE = gql`
+  mutation SendMessage($recipientId: ID!, $content: String!) {
+    sendMessage(recipientId: $recipientId, content: $content) {
+      _id content createdAt
+      sender    { _id name email }
+      recipient { _id name email }
+    }
   }
 `;

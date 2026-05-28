@@ -1,6 +1,6 @@
 const { GraphQLError } = require('graphql');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const { User, Message } = require('../models');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'firstbase_secret_key_change_in_production';
 const JWT_EXPIRY = '24h';
@@ -14,7 +14,7 @@ const requireAuth = (ctx) => {
   });
 };
 
-const PROFILE_SELECT = '_id email name age ageRangeMin ageRangeMax bio interests favoriteShows';
+const PROFILE_SELECT = '_id email name age ageRangeMin ageRangeMax bio interests favoriteShows socialMedia tier';
 
 const populateFull = (query) =>
   query.select('-password -sentRequests').populate([
@@ -27,6 +27,19 @@ const resolvers = {
     me: async (_, __, ctx) => {
       requireAuth(ctx);
       return populateFull(User.findById(ctx.user._id));
+    },
+
+    getConversation: async (_, { userId }, ctx) => {
+      requireAuth(ctx);
+      return Message.find({
+        $or: [
+          { sender: ctx.user._id, recipient: userId },
+          { sender: userId,       recipient: ctx.user._id },
+        ],
+      })
+        .sort({ createdAt: 1 })
+        .populate('sender',    PROFILE_SELECT)
+        .populate('recipient', PROFILE_SELECT);
     },
 
     discoverUsers: async (_, __, ctx) => {
@@ -98,6 +111,19 @@ const resolvers = {
       return populateFull(
         User.findByIdAndUpdate(ctx.user._id, { $pull: { pendingRequests: userId } }, { new: true })
       );
+    },
+
+    sendMessage: async (_, { recipientId, content }, ctx) => {
+      requireAuth(ctx);
+      const me = await User.findById(ctx.user._id).select('connections');
+      const isConnected = me.connections.some((id) => String(id) === recipientId);
+      if (!isConnected)
+        throw new GraphQLError('You can only message your connections.');
+
+      const msg = await Message.create({
+        sender: ctx.user._id, recipient: recipientId, content,
+      });
+      return msg.populate(['sender', 'recipient']);
     },
 
     removeConnection: async (_, { userId }, ctx) => {

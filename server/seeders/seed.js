@@ -4,7 +4,7 @@ const profileSeeds = require('./profileSeeds.json');
 
 db.once('open', async () => {
   try {
-    await User.deleteMany({});
+    await User.collection.drop().catch(() => {});
     await User.create(profileSeeds);
     console.log('Seed complete!');
     process.exit(0);
