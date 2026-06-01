@@ -1,16 +1,20 @@
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+
 const express = require('express');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const db = require('./config/connection');
-require('dotenv').config();
 
 const { typeDefs, resolvers } = require('./schemas');
+const { verifyToken } = require('./utils/auth');
+const ensureSeeds = require('./seeders/ensureSeeds');
 
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'firstbase_secret_key_change_in_production';
+const CORS_ORIGIN = process.env.CLIENT_URL || 'http://localhost:3000';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 const app = express();
 const server = new ApolloServer({ typeDefs, resolvers });
@@ -20,36 +24,53 @@ const startServer = async () => {
 
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
+  app.use(cookieParser());
+
+  // Clears auth cookies so the browser session ends
+  app.post('/logout', (req, res) => {
+    const cookieOpts = { path: '/', sameSite: 'strict', secure: IS_PRODUCTION };
+    res.clearCookie('id_token', cookieOpts);
+    res.clearCookie('auth_present', cookieOpts);
+    res.json({ ok: true });
+  });
 
   app.use(
     '/graphql',
-    cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000' }),
+    cors({ origin: CORS_ORIGIN, credentials: true }),
     expressMiddleware(server, {
-      context: async ({ req }) => {
-        const auth = req.headers.authorization || '';
-        const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-        if (!token) return {};
+      context: async ({ req, res }) => {
+        const token = req.cookies.id_token || '';
+        if (!token) return { res, req };
         try {
-          const user = jwt.verify(token, JWT_SECRET);
-          return { user };
+          const user = verifyToken(token);
+          return { user, res, req };
         } catch {
-          return {};
+          return { res, req };
         }
       },
     })
   );
 
-  if (process.env.NODE_ENV === 'production') {
+  if (IS_PRODUCTION) {
     app.use(express.static(path.join(__dirname, '../client/dist')));
     app.get('*', (req, res) => {
       res.sendFile(path.join(__dirname, '../client/dist/index.html'));
     });
   }
 
-  db.once('open', () => {
-    app.listen(PORT, () => {
+  db.once('open', async () => {
+    await ensureSeeds();
+    const httpServer = app.listen(PORT, () => {
       console.log(`API server running on port ${PORT}`);
       console.log(`GraphQL at http://localhost:${PORT}/graphql`);
+    });
+    httpServer.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`\nPort ${PORT} is already in use. Run this to free it:\n  fuser -k ${PORT}/tcp\n`);
+      } else {
+        console.error('Server error:', err.message);
+      }
+      process.exit(1);
     });
   });
 };

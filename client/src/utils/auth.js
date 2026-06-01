@@ -1,36 +1,21 @@
-import { jwtDecode } from 'jwt-decode';
-
 class AuthService {
-  getUser() {
-    return jwtDecode(this.getToken());
-  }
-
+  // The real JWT lives in an httpOnly cookie the server sets.
+  // auth_present is a non-httpOnly companion cookie with the same expiry
+  // that lets client JS know a session is active without touching the JWT.
   loggedIn() {
-    const token = this.getToken();
-    return !!token && !this.isTokenExpired(token);
+    return document.cookie.split(';').some((c) => c.trim().startsWith('auth_present='));
   }
 
-  isTokenExpired(token) {
-    try {
-      const { exp } = jwtDecode(token);
-      return exp < Date.now() / 1000;
-    } catch {
-      return true;
-    }
-  }
-
-  getToken() {
-    return localStorage.getItem('id_token');
-  }
-
-  login(idToken) {
-    localStorage.setItem('id_token', idToken);
+  login() {
     window.location.assign('/');
   }
 
-  logout() {
-    localStorage.removeItem('id_token');
-    window.location.reload();
+  async logout() {
+    try {
+      await fetch('/logout', { method: 'POST', credentials: 'include' });
+    } finally {
+      window.location.assign('/login');
+    }
   }
 }
 

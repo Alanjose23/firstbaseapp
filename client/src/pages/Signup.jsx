@@ -16,8 +16,8 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await addUser({ variables: { ...formState } });
-      Auth.login(data.addUser.token);
+      await addUser({ variables: { ...formState } });
+      Auth.login();
     } catch (err) {
       console.error(err);
     }

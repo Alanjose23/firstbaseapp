@@ -1,12 +1,45 @@
 const { GraphQLError } = require('graphql');
-const jwt = require('jsonwebtoken');
 const { User, Message } = require('../models');
+const { signToken } = require('../utils/auth');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'firstbase_secret_key_change_in_production';
-const JWT_EXPIRY = '24h';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 h, matches JWT_EXPIRY
 
-const signToken = (user) =>
-  jwt.sign({ _id: user._id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+// Simple in-memory rate limiter for login (not suitable for multi-instance deployments)
+const loginAttempts = new Map();
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS = 10;
+
+function checkLoginRateLimit(ip) {
+  const now = Date.now();
+  let entry = loginAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    entry = { count: 0, resetAt: now + LOGIN_WINDOW_MS };
+  }
+  entry.count += 1;
+  loginAttempts.set(ip, entry);
+  if (entry.count > MAX_LOGIN_ATTEMPTS) {
+    throw new GraphQLError('Too many login attempts. Please try again later.', {
+      extensions: { code: 'TOO_MANY_REQUESTS' },
+    });
+  }
+}
+
+// Requires uppercase, lowercase, digit, and at least 8 characters
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+function setAuthCookies(res, token) {
+  const opts = {
+    httpOnly: true,
+    secure: IS_PRODUCTION,
+    sameSite: 'strict',
+    maxAge: COOKIE_MAX_AGE,
+    path: '/',
+  };
+  res.cookie('id_token', token, opts);
+  // Non-httpOnly companion cookie lets client JS detect an active session
+  res.cookie('auth_present', '1', { ...opts, httpOnly: false });
+}
 
 const requireAuth = (ctx) => {
   if (!ctx.user) throw new GraphQLError('Not authenticated.', {
@@ -51,17 +84,32 @@ const resolvers = {
   },
 
   Mutation: {
-    addUser: async (_, { email, password }) => {
+    addUser: async (_, { email, password }, ctx) => {
+      if (!PASSWORD_REGEX.test(password)) {
+        throw new GraphQLError(
+          'Password must be at least 8 characters and include uppercase, lowercase, and a number.',
+          { extensions: { code: 'BAD_USER_INPUT' } }
+        );
+      }
       const user = await User.create({ email, password });
-      return { token: signToken(user), user };
+      setAuthCookies(ctx.res, signToken(user));
+      return { user };
     },
 
-    login: async (_, { email, password }) => {
+    login: async (_, { email, password }, ctx) => {
+      const ip = ctx.req?.ip || 'unknown';
+      checkLoginRateLimit(ip);
+
       const user = await User.findOne({ email });
-      if (!user) throw new GraphQLError('No account found with that email.');
-      const valid = await user.isCorrectPassword(password);
-      if (!valid) throw new GraphQLError('Incorrect password.');
-      return { token: signToken(user), user };
+      const valid = user && (await user.isCorrectPassword(password));
+      if (!valid) {
+        throw new GraphQLError('Invalid credentials.', {
+          extensions: { code: 'UNAUTHENTICATED' },
+        });
+      }
+
+      setAuthCookies(ctx.res, signToken(user));
+      return { user };
     },
 
     updateProfile: async (_, args, ctx) => {
