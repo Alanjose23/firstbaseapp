@@ -1,0 +1,29 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploys First Base as a single Node web service that serves both the
+# GraphQL API and the built React client. Auto-deploys on push to `main`.
+services:
+  - type: web
+    name: firstbaseapp
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    # Build installs server + client deps (incl. devDeps for Vite) and builds the client.
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /graphql
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # MongoDB Atlas connection string — set this in the Render dashboard.
+      # e.g. mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/firstbaseapp?retryWrites=true&w=majority
+      - key: MONGODB_URI
+        sync: false
+      # Auto-generated strong secret for signing JWTs.
+      - key: JWT_SECRET
+        generateValue: true
+      # Optional: only needed if the client is hosted on a different origin.
+      # When unset, the server falls back to Render's own URL (RENDER_EXTERNAL_URL).
+      - key: CLIENT_URL
+        sync: false

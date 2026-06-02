@@ -13,7 +13,7 @@ const { verifyToken } = require('./utils/auth');
 const ensureSeeds = require('./seeders/ensureSeeds');
 
 const PORT = process.env.PORT || 3001;
-const CORS_ORIGIN = process.env.CLIENT_URL || 'http://localhost:3000';
+const CORS_ORIGIN = process.env.CLIENT_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 const app = express();
@@ -22,6 +22,7 @@ const server = new ApolloServer({ typeDefs, resolvers });
 const startServer = async () => {
   await server.start();
 
+  app.set('trust proxy', 1);
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
   app.use(cookieParser());
