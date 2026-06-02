@@ -78,6 +78,7 @@ const resolvers = {
     discoverUsers: async (_, __, ctx) => {
       requireAuth(ctx);
       const me = await User.findById(ctx.user._id).select('connections sentRequests pendingRequests');
+      if (!me) throw new GraphQLError('User not found.', { extensions: { code: 'NOT_FOUND' } });
       const exclude = [me._id, ...me.connections, ...me.sentRequests, ...me.pendingRequests];
       return User.find({ _id: { $nin: exclude } }).select(PROFILE_SELECT);
     },
@@ -91,9 +92,18 @@ const resolvers = {
           { extensions: { code: 'BAD_USER_INPUT' } }
         );
       }
-      const user = await User.create({ email, password });
-      setAuthCookies(ctx.res, signToken(user));
-      return { user };
+      try {
+        const user = await User.create({ email, password });
+        setAuthCookies(ctx.res, signToken(user));
+        return { user };
+      } catch (err) {
+        if (err.code === 11000) {
+          throw new GraphQLError('An account with this email already exists.', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
+        }
+        throw err;
+      }
     },
 
     login: async (_, { email, password }, ctx) => {
@@ -137,6 +147,13 @@ const resolvers = {
     acceptRequest: async (_, { userId }, ctx) => {
       requireAuth(ctx);
 
+      const me = await User.findById(ctx.user._id).select('pendingRequests');
+      if (!me) throw new GraphQLError('User not found.', { extensions: { code: 'NOT_FOUND' } });
+      if (!me.pendingRequests.some((id) => String(id) === userId))
+        throw new GraphQLError('No pending request from this user.', {
+          extensions: { code: 'BAD_USER_INPUT' },
+        });
+
       await User.findByIdAndUpdate(userId, {
         $pull:     { sentRequests: ctx.user._id },
         $addToSet: { connections: ctx.user._id },
@@ -164,6 +181,7 @@ const resolvers = {
     sendMessage: async (_, { recipientId, content }, ctx) => {
       requireAuth(ctx);
       const me = await User.findById(ctx.user._id).select('connections');
+      if (!me) throw new GraphQLError('User not found.', { extensions: { code: 'NOT_FOUND' } });
       const isConnected = me.connections.some((id) => String(id) === recipientId);
       if (!isConnected)
         throw new GraphQLError('You can only message your connections.');
