@@ -47,7 +47,7 @@ const requireAuth = (ctx) => {
   });
 };
 
-const PROFILE_SELECT = '_id email name age ageRangeMin ageRangeMax bio interests favoriteShows socialMedia tier';
+const PROFILE_SELECT = '_id email name age ageRangeMin ageRangeMax bio gender lookingFor photos interests favoriteShows socialMedia tier';
 
 const populateFull = (query) =>
   query.select('-password -sentRequests').populate([
@@ -77,10 +77,27 @@ const resolvers = {
 
     discoverUsers: async (_, __, ctx) => {
       requireAuth(ctx);
-      const me = await User.findById(ctx.user._id).select('connections sentRequests pendingRequests');
+      const me = await User.findById(ctx.user._id)
+        .select('connections sentRequests pendingRequests gender lookingFor');
       if (!me) throw new GraphQLError('User not found.', { extensions: { code: 'NOT_FOUND' } });
       const exclude = [me._id, ...me.connections, ...me.sentRequests, ...me.pendingRequests];
-      return User.find({ _id: { $nin: exclude } }).select(PROFILE_SELECT);
+
+      // Mutual gender match. Unset fields match everyone so accounts created
+      // before this field existed (and seeds without it) stay discoverable.
+      const filters = [{ _id: { $nin: exclude } }];
+      if (me.lookingFor?.length) {
+        filters.push({ $or: [{ gender: { $in: me.lookingFor } }, { gender: null }] });
+      }
+      if (me.gender) {
+        filters.push({
+          $or: [
+            { lookingFor: me.gender },
+            { lookingFor: { $exists: false } },
+            { lookingFor: { $size: 0 } },
+          ],
+        });
+      }
+      return User.find({ $and: filters }).select(PROFILE_SELECT);
     },
   },
 
@@ -127,6 +144,18 @@ const resolvers = {
       const filtered = Object.fromEntries(
         Object.entries(args).filter(([, v]) => v !== undefined && v !== null)
       );
+      // Photos must come from our upload endpoint or an http(s) host —
+      // blocks javascript:/data: URLs from ever reaching an <img src>.
+      if (filtered.photos) {
+        const valid = filtered.photos.every(
+          (p) => typeof p === 'string' && (/^https?:\/\//.test(p) || p.startsWith('/uploads/'))
+        );
+        if (!valid) {
+          throw new GraphQLError('Invalid photo URL.', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
+        }
+      }
       return populateFull(
         User.findByIdAndUpdate(ctx.user._id, { $set: filtered }, { new: true, runValidators: true })
       );

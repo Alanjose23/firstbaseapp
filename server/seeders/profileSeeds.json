@@ -7,6 +7,13 @@
     "ageRangeMin": 24,
     "ageRangeMax": 35,
     "bio": "Aspiring chef who spends weekends hiking trails and hunting down hidden gems of restaurants. Looking for someone curious, kind, and hungry.",
+    "gender": "man",
+    "lookingFor": ["woman"],
+    "photos": [
+      "https://randomuser.me/api/portraits/men/32.jpg",
+      "https://picsum.photos/id/1080/600/750",
+      "https://picsum.photos/id/1018/600/750"
+    ],
     "interests": ["Cooking", "Hiking", "Photography", "Travel"],
     "favoriteShows": ["The Bear", "Chef's Table", "Parks and Recreation"]
   },
@@ -18,6 +25,12 @@
     "ageRangeMin": 22,
     "ageRangeMax": 33,
     "bio": "Graphic designer by day, jazz drummer by night. I'll probably drag you to a coffee shop you've never heard of — you'll thank me later.",
+    "gender": "woman",
+    "lookingFor": ["man"],
+    "photos": [
+      "https://randomuser.me/api/portraits/women/44.jpg",
+      "https://picsum.photos/id/1060/600/750"
+    ],
     "interests": ["Jazz", "Design", "Coffee", "Vinyl Records"],
     "favoriteShows": ["Succession", "Atlanta", "What We Do in the Shadows"]
   },
@@ -29,6 +42,12 @@
     "ageRangeMin": 26,
     "ageRangeMax": 38,
     "bio": "Marathon runner and amateur sommelier. I believe in long dinners, longer hikes, and never skipping dessert.",
+    "gender": "man",
+    "lookingFor": ["woman", "nonbinary"],
+    "photos": [
+      "https://randomuser.me/api/portraits/men/85.jpg",
+      "https://picsum.photos/id/1011/600/750"
+    ],
     "interests": ["Running", "Wine", "Travel", "Cooking"],
     "favoriteShows": ["Severance", "The White Lotus", "Fleabag"]
   },
@@ -40,6 +59,12 @@
     "ageRangeMin": 21,
     "ageRangeMax": 30,
     "bio": "Just moved to the city and on a mission to find the best tacos. Send me your recs — or better yet, show me in person.",
+    "gender": "woman",
+    "lookingFor": ["man", "woman"],
+    "photos": [
+      "https://randomuser.me/api/portraits/women/68.jpg",
+      "https://picsum.photos/id/1058/600/750"
+    ],
     "interests": ["Street Food", "Cycling", "Indie Music", "Skateboarding"],
     "favoriteShows": ["Beef", "The Last of Us", "Ted Lasso"]
   },
@@ -51,6 +76,12 @@
     "ageRangeMin": 28,
     "ageRangeMax": 42,
     "bio": "Architect with a pottery hobby and a Sunday farmer's market ritual. I read on the weekends and overthink on weekdays.",
+    "gender": "woman",
+    "lookingFor": ["man"],
+    "photos": [
+      "https://randomuser.me/api/portraits/women/65.jpg",
+      "https://picsum.photos/id/1040/600/750"
+    ],
     "interests": ["Architecture", "Books", "Pottery", "Yoga"],
     "favoriteShows": ["The Crown", "Mindhunter", "Documentary Now!"]
   },
@@ -62,6 +93,12 @@
     "ageRangeMin": 23,
     "ageRangeMax": 34,
     "bio": "High school history teacher, salsa dancer, and terrible but wildly enthusiastic golfer. Karaoke should be an Olympic sport.",
+    "gender": "man",
+    "lookingFor": ["woman"],
+    "photos": [
+      "https://randomuser.me/api/portraits/men/41.jpg",
+      "https://picsum.photos/id/1035/600/750"
+    ],
     "interests": ["Salsa Dancing", "Golf", "Karaoke", "History"],
     "favoriteShows": ["Abbott Elementary", "Taskmaster", "Breaking Bad"]
   },
@@ -73,6 +110,12 @@
     "ageRangeMin": 25,
     "ageRangeMax": 36,
     "bio": "Startup founder who unwinds with rock climbing and sourdough experiments. Looking for someone who can keep up and slow me down.",
+    "gender": "woman",
+    "lookingFor": ["man", "nonbinary"],
+    "photos": [
+      "https://randomuser.me/api/portraits/women/90.jpg",
+      "https://picsum.photos/id/1015/600/750"
+    ],
     "interests": ["Rock Climbing", "Baking", "Tech", "Meditation"],
     "favoriteShows": ["Silicon Valley", "Halt and Catch Fire", "Nathan for You"]
   },
@@ -84,6 +127,12 @@
     "ageRangeMin": 21,
     "ageRangeMax": 32,
     "bio": "Marine biologist who basically lives in the ocean on weekends. Expert at finding dive spots and convincing people to eat weird seafood.",
+    "gender": "nonbinary",
+    "lookingFor": ["man", "woman", "nonbinary"],
+    "photos": [
+      "https://i.pravatar.cc/600?img=16",
+      "https://picsum.photos/id/1069/600/750"
+    ],
     "interests": ["Scuba Diving", "Marine Life", "Yoga", "Photography"],
     "favoriteShows": ["Our Planet", "Dark", "Broad City"]
   },
@@ -95,6 +144,12 @@
     "ageRangeMin": 25,
     "ageRangeMax": 38,
     "bio": "Stand-up comedian and part-time mixologist. I will absolutely challenge you to a trivia night and I will absolutely win.",
+    "gender": "woman",
+    "lookingFor": ["woman", "nonbinary"],
+    "photos": [
+      "https://randomuser.me/api/portraits/women/26.jpg",
+      "https://picsum.photos/id/1074/600/750"
+    ],
     "interests": ["Comedy", "Cocktails", "Trivia", "Improv"],
     "favoriteShows": ["The Marvelous Mrs. Maisel", "I Think You Should Leave", "Cheers"]
   },
@@ -106,6 +161,13 @@
     "ageRangeMin": 27,
     "ageRangeMax": 40,
     "bio": "Landscape photographer and weekend climber. I know every rooftop bar in the city and somehow still prefer a quiet night in.",
+    "gender": "man",
+    "lookingFor": ["woman"],
+    "photos": [
+      "https://randomuser.me/api/portraits/men/11.jpg",
+      "https://picsum.photos/id/1016/600/750",
+      "https://picsum.photos/id/1043/600/750"
+    ],
     "interests": ["Photography", "Rock Climbing", "Rooftops", "Jazz"],
     "favoriteShows": ["The Bear", "Succession", "Planet Earth"]
   }

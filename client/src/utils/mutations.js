@@ -23,6 +23,9 @@ export const UPDATE_PROFILE = gql`
     $ageRangeMin: Int
     $ageRangeMax: Int
     $bio: String
+    $gender: String
+    $lookingFor: [String]
+    $photos: [String]
     $interests: [String]
     $favoriteShows: [String]
     $socialMedia: SocialMediaInput
@@ -33,11 +36,14 @@ export const UPDATE_PROFILE = gql`
       ageRangeMin: $ageRangeMin
       ageRangeMax: $ageRangeMax
       bio: $bio
+      gender: $gender
+      lookingFor: $lookingFor
+      photos: $photos
       interests: $interests
       favoriteShows: $favoriteShows
       socialMedia: $socialMedia
     ) {
-      _id name age ageRangeMin ageRangeMax bio interests favoriteShows tier
+      _id name age ageRangeMin ageRangeMax bio gender lookingFor photos interests favoriteShows tier
       socialMedia { instagram twitter tiktok }
     }
   }

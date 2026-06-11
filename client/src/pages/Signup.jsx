@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { ADD_USER } from '../utils/mutations';
-import Auth from '../utils/auth';
 import '../styling/Signup.css';
 
 const Signup = () => {
@@ -17,7 +16,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       await addUser({ variables: { ...formState } });
-      Auth.login();
+      window.location.assign('/welcome');
     } catch (err) {
       console.error(err);
     }

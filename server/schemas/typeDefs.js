@@ -19,6 +19,9 @@ const typeDefs = `#graphql
     ageRangeMin: Int
     ageRangeMax: Int
     bio: String
+    gender: String
+    lookingFor: [String]
+    photos: [String]
     interests: [String]
     favoriteShows: [String]
     socialMedia: SocialMedia
@@ -55,6 +58,9 @@ const typeDefs = `#graphql
       ageRangeMin: Int
       ageRangeMax: Int
       bio: String
+      gender: String
+      lookingFor: [String]
+      photos: [String]
       interests: [String]
       favoriteShows: [String]
       socialMedia: SocialMediaInput

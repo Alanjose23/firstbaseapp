@@ -32,6 +32,19 @@ const userSchema = new Schema({
     default: '',
     maxlength: 300,
   },
+  gender: {
+    type: String,
+    enum: ['man', 'woman', 'nonbinary', 'other'],
+  },
+  lookingFor: [{
+    type: String,
+    enum: ['man', 'woman', 'nonbinary', 'other'],
+  }],
+  photos: {
+    type: [String],
+    default: [],
+    validate: [(arr) => arr.length <= 6, 'You can have at most 6 photos.'],
+  },
   interests:     [{ type: String, trim: true }],
   favoriteShows: [{ type: String, trim: true }],
   connections:      [{ type: Schema.Types.ObjectId, ref: 'User' }],

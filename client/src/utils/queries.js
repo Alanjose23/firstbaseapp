@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const USER_FIELDS = `
-  _id email name age ageRangeMin ageRangeMax bio interests favoriteShows tier
+  _id email name age ageRangeMin ageRangeMax bio gender lookingFor photos interests favoriteShows tier
   socialMedia { instagram twitter tiktok }
 `;
 

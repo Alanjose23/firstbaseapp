@@ -10,6 +10,7 @@ import {
   SEND_MESSAGE,
 } from '../utils/mutations';
 import Auth from '../utils/auth';
+import PhotoCarousel from '../components/PhotoCarousel';
 import '../styling/UserandDate.css';
 
 /* ── Helpers ─────────────────────────────────────────────── */
@@ -20,6 +21,33 @@ const avatarColor = (str = '') => {
 };
 const initial = (name, email) =>
   (name?.trim() ? name.trim()[0] : email?.[0] ?? '?').toUpperCase();
+
+const GENDER_OPTIONS = [
+  { id: 'man',       label: 'Man',        plural: 'Men' },
+  { id: 'woman',     label: 'Woman',      plural: 'Women' },
+  { id: 'nonbinary', label: 'Non-binary', plural: 'Non-binary people' },
+  { id: 'other',     label: 'Other',      plural: 'Other' },
+];
+const genderLabel = (id) => GENDER_OPTIONS.find((o) => o.id === id)?.label ?? '';
+const genderPlural = (id) => GENDER_OPTIONS.find((o) => o.id === id)?.plural ?? '';
+
+/* First photo when the user has one, coloured-initial circle otherwise */
+function Avatar({ user, className }) {
+  if (user?.photos?.length) {
+    return (
+      <img
+        className={`${className} avatar-img`}
+        src={user.photos[0]}
+        alt={user.name || user.email}
+      />
+    );
+  }
+  return (
+    <div className={className} style={{ background: avatarColor(user?.email) }}>
+      {initial(user?.name, user?.email)}
+    </div>
+  );
+}
 
 const TIERS = [
   {
@@ -111,9 +139,7 @@ function ChatPane({ me, contact, onClose }) {
   return (
     <div className="chat-pane">
       <div className="chat-pane-header">
-        <div className="chat-pane-avatar" style={{ background: avatarColor(contact.email) }}>
-          {initial(contact.name, contact.email)}
-        </div>
+        <Avatar user={contact} className="chat-pane-avatar" />
         <span className="chat-pane-name">{contact.name || contact.email.split('@')[0]}</span>
         <button className="chat-pane-close" onClick={onClose}>✕</button>
       </div>
@@ -192,6 +218,15 @@ export default function NetworkPage() {
   const me      = meData?.me;
   const discover = discoverData?.discoverUsers ?? [];
 
+  // Prompt accounts without a gender to finish onboarding — once per session,
+  // so "Skip for now" on the welcome screen doesn't bounce them back.
+  useEffect(() => {
+    if (me && !me.gender && !sessionStorage.getItem('fb_welcome_prompted')) {
+      sessionStorage.setItem('fb_welcome_prompted', '1');
+      window.location.assign('/welcome');
+    }
+  }, [me]);
+
   /* ── mutations ── */
   const [updateProfile] = useMutation(UPDATE_PROFILE,    { refetchQueries: [{ query: QUERY_ME }] });
   const [sendRequest]   = useMutation(SEND_REQUEST,      REFETCH);
@@ -213,6 +248,9 @@ export default function NetworkPage() {
       ageRangeMin:   me?.ageRangeMin   ?? 18,
       ageRangeMax:   me?.ageRangeMax   ?? 99,
       bio:           me?.bio           ?? '',
+      gender:        me?.gender        ?? '',
+      lookingFor:    me?.lookingFor    ?? [],
+      photos:        me?.photos        ?? [],
       interests:     me?.interests     ?? [],
       favoriteShows: me?.favoriteShows ?? [],
       socialMedia: {
@@ -224,11 +262,46 @@ export default function NetworkPage() {
     setEditing(true);
   };
 
+  /* ── photo upload state ── */
+  const [uploading, setUploading]   = useState(false);
+  const [photoError, setPhotoError] = useState('');
+
+  const movePhoto = (i, d) =>
+    setForm((f) => {
+      const arr = [...f.photos];
+      [arr[i], arr[i + d]] = [arr[i + d], arr[i]];
+      return { ...f, photos: arr };
+    });
+
+  const removePhoto = (i) =>
+    setForm((f) => ({ ...f, photos: f.photos.filter((_, x) => x !== i) }));
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setPhotoError('');
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('photo', file);
+      const res = await fetch('/api/photos', { method: 'POST', body: fd, credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed.');
+      setForm((f) => ({ ...f, photos: [...(f.photos ?? []), data.url] }));
+    } catch (err) {
+      setPhotoError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     const vars = {
       ...form,
       age:         form.age ? Number(form.age) : undefined,
+      gender:      form.gender || undefined,
       ageRangeMin: Number(form.ageRangeMin),
       ageRangeMax: Number(form.ageRangeMax),
     };
@@ -291,10 +364,7 @@ export default function NetworkPage() {
         {/* ── My Profile ── */}
         <div className="section-card">
           <div className="profile-top">
-            <div className="profile-avatar-lg"
-              style={{ background: me ? avatarColor(me.email) : 'var(--primary)' }}>
-              {initial(me?.name, me?.email)}
-            </div>
+            <Avatar user={me} className="profile-avatar-lg" />
             <div className="profile-meta">
               <div className="profile-name">{me?.name || 'Set your name →'}</div>
               <div className="profile-email-sub">{me?.email}</div>
@@ -302,6 +372,7 @@ export default function NetworkPage() {
                 <span>{me?.connections?.length ?? 0}</span>
                 {' connection'}{me?.connections?.length !== 1 ? 's' : ''}
                 {me?.age && <>&nbsp;·&nbsp;<span>{me.age}</span> yrs</>}
+                {me?.gender && <>&nbsp;·&nbsp;{genderLabel(me.gender)}</>}
                 &nbsp;·&nbsp;
                 <span className="tier-inline-badge">{(me?.tier ?? 'free').toUpperCase()}</span>
               </div>
@@ -313,6 +384,39 @@ export default function NetworkPage() {
 
           {editing ? (
             <form className="edit-profile-form" onSubmit={handleSave}>
+              <div className="field-group">
+                <label>Photos ({form.photos?.length ?? 0}/6) — first one is your main photo</label>
+                <div className="photo-manager">
+                  {form.photos?.map((p, i) => (
+                    <div key={p} className="photo-thumb">
+                      <img src={p} alt={`Photo ${i + 1}`} />
+                      {i === 0 && <span className="photo-thumb-badge">Main</span>}
+                      <div className="photo-thumb-actions">
+                        <button type="button" disabled={i === 0}
+                          aria-label="Move left" onClick={() => movePhoto(i, -1)}>‹</button>
+                        <button type="button" disabled={i === form.photos.length - 1}
+                          aria-label="Move right" onClick={() => movePhoto(i, 1)}>›</button>
+                        <button type="button" aria-label="Remove photo"
+                          onClick={() => removePhoto(i)}>✕</button>
+                      </div>
+                    </div>
+                  ))}
+                  {(form.photos?.length ?? 0) < 6 && (
+                    <label className={`photo-add${uploading ? ' uploading' : ''}`}>
+                      {uploading ? '…' : '+'}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        hidden
+                        disabled={uploading}
+                        onChange={handlePhotoUpload}
+                      />
+                    </label>
+                  )}
+                </div>
+                {photoError && <p className="photo-error">{photoError}</p>}
+              </div>
+
               <div className="field-row">
                 <div className="field-group">
                   <label>Full Name</label>
@@ -326,6 +430,47 @@ export default function NetworkPage() {
                     value={form.age}
                     onChange={(e) => setForm({ ...form, age: e.target.value })}
                     placeholder="e.g. 28" />
+                </div>
+              </div>
+
+              <div className="field-row">
+                <div className="field-group">
+                  <label>I am a…</label>
+                  <select
+                    value={form.gender}
+                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                  >
+                    <option value="">Select…</option>
+                    {GENDER_OPTIONS.map((o) => (
+                      <option key={o.id} value={o.id}>{o.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field-group">
+                  <label>Looking for</label>
+                  <div className="tags-row" style={{ marginTop: '0.35rem' }}>
+                    {GENDER_OPTIONS.map((o) => {
+                      const on = form.lookingFor?.includes(o.id);
+                      return (
+                        <button
+                          key={o.id}
+                          type="button"
+                          className={`tag-chip${on ? ' primary' : ''}`}
+                          style={{ cursor: 'pointer', font: 'inherit' }}
+                          onClick={() =>
+                            setForm((f) => ({
+                              ...f,
+                              lookingFor: on
+                                ? f.lookingFor.filter((x) => x !== o.id)
+                                : [...(f.lookingFor ?? []), o.id],
+                            }))
+                          }
+                        >
+                          {o.plural}{on ? ' ✓' : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -399,6 +544,11 @@ export default function NetworkPage() {
             </form>
           ) : (
             <>
+              {me?.photos?.length > 0 && (
+                <div className="profile-carousel-wrap">
+                  <PhotoCarousel photos={me.photos} alt={me.name || 'My photos'} />
+                </div>
+              )}
               {me?.bio && (
                 <div className="profile-field">
                   <div className="profile-field-label">About</div>
@@ -408,7 +558,10 @@ export default function NetworkPage() {
               {(me?.ageRangeMin || me?.ageRangeMax) && (
                 <div className="profile-field" style={{ marginTop: '0.75rem' }}>
                   <div className="profile-field-label">Looking for</div>
-                  <div className="profile-field-value">Ages {me.ageRangeMin} – {me.ageRangeMax}</div>
+                  <div className="profile-field-value">
+                    {me.lookingFor?.length ? `${me.lookingFor.map(genderPlural).join(', ')} · ` : ''}
+                    Ages {me.ageRangeMin} – {me.ageRangeMax}
+                  </div>
                 </div>
               )}
               {me?.interests?.length > 0 && (
@@ -602,9 +755,7 @@ export default function NetworkPage() {
                     className={`msg-contact${chatContact?._id === u._id ? ' active' : ''}`}
                     onClick={() => setChatContact(chatContact?._id === u._id ? null : u)}
                   >
-                    <div className="msg-contact-avatar" style={{ background: avatarColor(u.email) }}>
-                      {initial(u.name, u.email)}
-                    </div>
+                    <Avatar user={u} className="msg-contact-avatar" />
                     <span className="msg-contact-name">
                       {u.name || u.email.split('@')[0]}
                     </span>
@@ -633,9 +784,7 @@ export default function NetworkPage() {
             <div className="user-list">
               {me.pendingRequests.map((u) => (
                 <div key={u._id} className="request-card">
-                  <div className="user-avatar" style={{ background: avatarColor(u.email) }}>
-                    {initial(u.name, u.email)}
-                  </div>
+                  <Avatar user={u} className="user-avatar" />
                   <div className="request-info">
                     <div className="request-name">
                       {u.name || u.email.split('@')[0]}{u.age ? `, ${u.age}` : ''}
@@ -670,9 +819,7 @@ export default function NetworkPage() {
             ) : (
               me.connections.map((u) => (
                 <div key={u._id} className="user-card">
-                  <div className="user-avatar" style={{ background: avatarColor(u.email) }}>
-                    {initial(u.name, u.email)}
-                  </div>
+                  <Avatar user={u} className="user-avatar" />
                   <div className="user-info">
                     <div className="user-name">
                       {u.name || u.email.split('@')[0]}{u.age ? `, ${u.age}` : ''}
@@ -703,14 +850,17 @@ export default function NetworkPage() {
             <div className="discover-grid">
               {discover.map((u) => (
                 <div key={u._id} className="discover-card">
+                  {u.photos?.length > 0 && (
+                    <PhotoCarousel photos={u.photos} alt={u.name || 'Profile photos'}
+                      className="discover-carousel" />
+                  )}
                   <div className="discover-card-top">
-                    <div className="discover-avatar" style={{ background: avatarColor(u.email) }}>
-                      {initial(u.name, u.email)}
-                    </div>
+                    <Avatar user={u} className="discover-avatar" />
                     <div>
                       <div className="discover-name">{u.name || u.email.split('@')[0]}</div>
                       <div className="discover-age">
                         {u.age ? `Age ${u.age}` : 'Age not set'}
+                        {u.gender ? ` · ${genderLabel(u.gender)}` : ''}
                         {u.ageRangeMin && u.ageRangeMax
                           ? ` · Looking for ${u.ageRangeMin}–${u.ageRangeMax}`
                           : ''}
